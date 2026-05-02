@@ -46,11 +46,14 @@
         <article class="metric-card"><span>Cuentas activas</span><strong id="metricAccounts">0</strong></article>
         <article class="metric-card"><span>Asientos</span><strong id="metricEntries">0</strong></article>
         <article class="metric-card"><span>Periodos abiertos</span><strong id="metricPeriods">0</strong></article>
+        <article class="metric-card"><span>Docs DGI mes</span><strong id="metricFiscalDocs">0</strong></article>
+        <article class="metric-card"><span>IVA DGI mes</span><strong id="metricFiscalIva">0.00</strong></article>
         <article class="metric-card"><span>Diferencia Deb/Cred</span><strong id="metricDifference">0.00</strong></article>
       </section>
 
       <nav class="caja-tabs accounting-tabs" aria-label="Opciones contables">
         <button class="caja-tab is-active" type="button" data-accounting-view="catalogo">Catalogo MUC</button>
+        <button class="caja-tab" type="button" data-accounting-view="fiscal">Fiscal DGI</button>
         <button class="caja-tab" type="button" data-accounting-view="asientos">Asientos</button>
         <button class="caja-tab" type="button" data-accounting-view="reportes">Reportes</button>
         <button class="caja-tab" type="button" data-accounting-view="prim">PRIM CONAMI</button>
@@ -141,6 +144,55 @@
               </footer>
             </form>
           </aside>
+        </section>
+      </section>
+
+      <section class="accounting-panel" data-accounting-panel="fiscal">
+        <section class="table-panel fiscal-ledger-panel">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Planillas DGI</span>
+              <h2>Facturas, IVA, ingresos y retenciones</h2>
+            </div>
+            <span class="counter-pill" id="fiscalCounter">0 filas</span>
+          </div>
+          <div class="toolbar-card accounting-filter-row fiscal-filter-row">
+            <label class="field"><span>Periodo</span><input id="fiscalPeriod" type="month" /></label>
+            <label class="field"><span>Libro</span><select id="fiscalBook"></select></label>
+            <label class="field field-grow"><span>Buscar</span><input id="fiscalSearch" type="search" placeholder="Factura, RUC o razon social" /></label>
+            <button class="primary-button" id="newFiscalRowButton" type="button">Nueva fila</button>
+            <button class="ghost-button" id="refreshFiscalButton" type="button">Actualizar</button>
+            <button class="ghost-button" id="exportFiscalButton" type="button">CSV DGI</button>
+          </div>
+          <div class="form-message is-info fiscal-status-line" id="fiscalStatusLine">
+            Captura de documentos fiscales segun formatos DGI: credito fiscal IVA 124, ingresos mensuales y retenciones.
+          </div>
+          <div class="table-wrap fiscal-grid-wrap">
+            <table class="data-table fiscal-grid" id="fiscalGrid">
+              <thead>
+                <tr>
+                  <th>Libro</th>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Documento</th>
+                  <th>RUC</th>
+                  <th>Nombre / razon social</th>
+                  <th>Descripcion</th>
+                  <th>Ingreso sin IVA</th>
+                  <th>IVA trasladado</th>
+                  <th>Cod. renglon</th>
+                  <th>Base imponible</th>
+                  <th>Retenido</th>
+                  <th>Alicuota</th>
+                  <th>Cod. retencion</th>
+                  <th>Cuenta</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="fiscalTableBody"></tbody>
+            </table>
+          </div>
         </section>
       </section>
 

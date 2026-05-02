@@ -8,6 +8,7 @@
     selectedAccount: null,
     entries: [],
     selectedEntry: null,
+    fiscalRows: [],
     reportRows: [],
     primRows: [],
     activePanel: "catalogo",
@@ -24,6 +25,8 @@
     metricAccounts: $("metricAccounts"),
     metricEntries: $("metricEntries"),
     metricPeriods: $("metricPeriods"),
+    metricFiscalDocs: $("metricFiscalDocs"),
+    metricFiscalIva: $("metricFiscalIva"),
     metricDifference: $("metricDifference"),
     accountSearch: $("accountSearch"),
     accountClassFilter: $("accountClassFilter"),
@@ -50,6 +53,15 @@
     accountMessage: $("accountMessage"),
     clearAccountButton: $("clearAccountButton"),
     toggleAccountButton: $("toggleAccountButton"),
+    fiscalPeriod: $("fiscalPeriod"),
+    fiscalBook: $("fiscalBook"),
+    fiscalSearch: $("fiscalSearch"),
+    newFiscalRowButton: $("newFiscalRowButton"),
+    refreshFiscalButton: $("refreshFiscalButton"),
+    exportFiscalButton: $("exportFiscalButton"),
+    fiscalCounter: $("fiscalCounter"),
+    fiscalTableBody: $("fiscalTableBody"),
+    fiscalStatusLine: $("fiscalStatusLine"),
     entryFrom: $("entryFrom"),
     entryTo: $("entryTo"),
     entryOrigin: $("entryOrigin"),
@@ -153,6 +165,8 @@
     nodes.metricAccounts.textContent = money(summary.activeAccounts).replace(".00", "");
     nodes.metricEntries.textContent = money(summary.activeEntries).replace(".00", "");
     nodes.metricPeriods.textContent = money(summary.openPeriods).replace(".00", "");
+    nodes.metricFiscalDocs.textContent = money(summary.fiscalDocuments).replace(".00", "");
+    nodes.metricFiscalIva.textContent = money(summary.fiscalIva);
     nodes.metricDifference.textContent = money(summary.difference);
     nodes.metricDifference.classList.toggle("is-danger", Number(summary.difference || 0) !== 0);
   };
@@ -281,6 +295,175 @@
     } catch (error) {
       setMessage(nodes.accountMessage, error.message, "error");
     }
+  };
+
+  const fiscalTemplate = () => ({
+    id: null,
+    period: nodes.fiscalPeriod.value || isoToday().slice(0, 7),
+    book: ["TODOS", "0", ""].includes(nodes.fiscalBook.value) ? "COMPRAS_IVA" : nodes.fiscalBook.value,
+    documentType: "FACTURA",
+    documentNumber: "",
+    documentDate: isoToday(),
+    ruc: "",
+    name: "",
+    description: "",
+    incomeWithoutIva: 0,
+    ivaAmount: 0,
+    rowCode: "",
+    taxableBase: 0,
+    retainedAmount: 0,
+    retentionRate: 0,
+    retentionCode: "",
+    accountCode: "",
+    status: "BORRADOR",
+  });
+
+  const fiscalColumns = [
+    ["book", "select", () => state.catalogs?.fiscalBooks || []],
+    ["documentDate", "date"],
+    ["documentType", "select", () => state.catalogs?.fiscalDocumentTypes || []],
+    ["documentNumber", "text"],
+    ["ruc", "text"],
+    ["name", "text"],
+    ["description", "text"],
+    ["incomeWithoutIva", "number"],
+    ["ivaAmount", "number"],
+    ["rowCode", "text"],
+    ["taxableBase", "number"],
+    ["retainedAmount", "number"],
+    ["retentionRate", "number"],
+    ["retentionCode", "text"],
+    ["accountCode", "text"],
+    ["status", "select", () => state.catalogs?.fiscalStatuses || []],
+  ];
+
+  const fiscalValue = (row, key) => {
+    const value = row[key];
+    if (key === "documentDate") return String(value || "").slice(0, 10);
+    if (["incomeWithoutIva", "ivaAmount", "taxableBase", "retainedAmount", "retentionRate"].includes(key)) {
+      return Number(value || 0);
+    }
+    return value ?? "";
+  };
+
+  const renderFiscalInput = (row, key, type, optionsProvider) => {
+    const value = fiscalValue(row, key);
+    if (type === "select") {
+      const options = (optionsProvider?.() || []).filter((item) => item.value !== "TODOS");
+      return `<select data-fiscal-field="${key}">${options
+        .map((item) => `<option value="${escapeHtml(item.value)}" ${String(value) === String(item.value) ? "selected" : ""}>${escapeHtml(item.label || item.value)}</option>`)
+        .join("")}</select>`;
+    }
+
+    return `<input data-fiscal-field="${key}" type="${type}" value="${escapeHtml(value)}" ${type === "number" ? 'step="0.01" min="0"' : ""} />`;
+  };
+
+  const renderFiscalRows = () => {
+    nodes.fiscalCounter.textContent = `${state.fiscalRows.length} filas`;
+    if (!state.fiscalRows.length) {
+      nodes.fiscalTableBody.innerHTML = `<tr><td colspan="17">Sin documentos fiscales para el periodo.</td></tr>`;
+      return;
+    }
+
+    nodes.fiscalTableBody.innerHTML = state.fiscalRows
+      .map(
+        (row, index) => `
+        <tr data-fiscal-index="${index}" class="${row.id ? "" : "is-draft"}">
+          ${fiscalColumns.map(([key, type, optionsProvider]) => `<td>${renderFiscalInput(row, key, type, optionsProvider)}</td>`).join("")}
+          <td class="fiscal-actions-cell">
+            <button class="ghost-button fiscal-save-row" type="button">Guardar</button>
+            <button class="danger-button fiscal-void-row" type="button" ${row.id ? "" : "disabled"}>Anular</button>
+          </td>
+        </tr>`,
+      )
+      .join("");
+
+    nodes.fiscalTableBody.querySelectorAll("[data-fiscal-index]").forEach((tr) => bindFiscalRow(tr));
+  };
+
+  const bindFiscalRow = (tr) => {
+    const index = Number(tr.dataset.fiscalIndex);
+    tr.querySelectorAll("[data-fiscal-field]").forEach((input) => {
+      input.addEventListener("input", () => {
+        const key = input.dataset.fiscalField;
+        state.fiscalRows[index][key] = input.type === "number" ? Number(input.value || 0) : input.value;
+      });
+      input.addEventListener("keydown", (event) => moveFiscalCell(event, input));
+    });
+    tr.querySelector(".fiscal-save-row")?.addEventListener("click", () => saveFiscalRow(index).catch(showFiscalError));
+    tr.querySelector(".fiscal-void-row")?.addEventListener("click", () => voidFiscalRow(index).catch(showFiscalError));
+  };
+
+  const moveFiscalCell = (event, input) => {
+    const keys = ["Enter", "ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"];
+    if (!keys.includes(event.key)) return;
+    const cells = Array.from(nodes.fiscalTableBody.querySelectorAll("[data-fiscal-field]"));
+    const current = cells.indexOf(input);
+    if (current < 0) return;
+    event.preventDefault();
+    const rowWidth = fiscalColumns.length;
+    const nextIndex =
+      event.key === "ArrowLeft" ? current - 1 :
+      event.key === "ArrowUp" ? current - rowWidth :
+      event.key === "ArrowDown" ? current + rowWidth :
+      current + 1;
+    cells[Math.max(0, Math.min(cells.length - 1, nextIndex))]?.focus();
+  };
+
+  const loadFiscalRows = async () => {
+    const query = buildQuery({
+      periodo: nodes.fiscalPeriod.value || isoToday().slice(0, 7),
+      libro: nodes.fiscalBook.value,
+      search: nodes.fiscalSearch.value.trim(),
+    });
+    const payload = await request(`/Contabilidad/ListarDocumentosFiscales${query}`);
+    state.fiscalRows = payload.data || [];
+    renderFiscalRows();
+  };
+
+  const addFiscalRow = () => {
+    state.fiscalRows = [fiscalTemplate(), ...state.fiscalRows];
+    renderFiscalRows();
+    nodes.fiscalTableBody.querySelector("[data-fiscal-field='documentNumber']")?.focus();
+  };
+
+  const saveFiscalRow = async (index) => {
+    const row = state.fiscalRows[index];
+    const payload = {
+      id: row.id,
+      period: nodes.fiscalPeriod.value || row.period,
+      book: row.book,
+      documentType: row.documentType,
+      documentNumber: row.documentNumber,
+      documentDate: row.documentDate,
+      ruc: row.ruc,
+      name: row.name,
+      description: row.description,
+      incomeWithoutIva: Number(row.incomeWithoutIva || 0),
+      ivaAmount: Number(row.ivaAmount || 0),
+      rowCode: row.rowCode,
+      taxableBase: Number(row.taxableBase || 0),
+      retainedAmount: Number(row.retainedAmount || 0),
+      retentionRate: Number(row.retentionRate || 0),
+      retentionCode: row.retentionCode,
+      accountCode: row.accountCode,
+      status: row.status,
+    };
+    await request("/Contabilidad/GuardarDocumentoFiscal", { method: "POST", body: JSON.stringify(payload) });
+    setMessage(nodes.fiscalStatusLine, "Fila fiscal guardada.", "success");
+    await Promise.all([loadFiscalRows(), loadSummary()]);
+  };
+
+  const voidFiscalRow = async (index) => {
+    const row = state.fiscalRows[index];
+    if (!row?.id) return;
+    await request("/Contabilidad/AnularDocumentoFiscal", { method: "POST", body: JSON.stringify({ id: row.id }) });
+    setMessage(nodes.fiscalStatusLine, "Fila fiscal anulada.", "success");
+    await Promise.all([loadFiscalRows(), loadSummary()]);
+  };
+
+  const showFiscalError = (error) => {
+    setMessage(nodes.fiscalStatusLine, error.message || "No se pudo procesar la fila fiscal.", "error");
   };
 
   const renderEntries = () => {
@@ -449,6 +632,7 @@
     document.querySelectorAll("[data-accounting-panel]").forEach((section) => {
       section.classList.toggle("is-active", section.dataset.accountingPanel === panel);
     });
+    if (panel === "fiscal" && !state.fiscalRows.length) loadFiscalRows().catch(showFiscalError);
     if (panel === "asientos" && !state.entries.length) loadEntries().catch(console.error);
     if (panel === "reportes" && !state.reportRows.length) generateReport().catch(console.error);
     if (panel === "prim" && !state.primRows.length) loadPrim().catch(console.error);
@@ -475,6 +659,12 @@
     nodes.accountForm.addEventListener("submit", saveAccount);
     nodes.clearAccountButton.addEventListener("click", clearAccountForm);
     nodes.toggleAccountButton.addEventListener("click", toggleAccount);
+    nodes.fiscalPeriod.addEventListener("change", () => loadFiscalRows().catch(showFiscalError));
+    nodes.fiscalBook.addEventListener("change", () => loadFiscalRows().catch(showFiscalError));
+    nodes.fiscalSearch.addEventListener("input", () => loadFiscalRows().catch(showFiscalError));
+    nodes.newFiscalRowButton.addEventListener("click", addFiscalRow);
+    nodes.refreshFiscalButton.addEventListener("click", () => loadFiscalRows().catch(showFiscalError));
+    nodes.exportFiscalButton.addEventListener("click", () => exportCsv(state.fiscalRows, `dgi_${nodes.fiscalPeriod.value || "periodo"}.csv`));
     nodes.refreshEntriesButton.addEventListener("click", () => loadEntries().catch(console.error));
     nodes.generateReportButton.addEventListener("click", () => generateReport().catch(console.error));
     nodes.exportReportButton.addEventListener("click", () => exportCsv(state.reportRows, `contabilidad_${nodes.reportType.value.toLowerCase()}.csv`));
@@ -509,6 +699,7 @@
     bindEvents();
     nodes.entryFrom.value = firstDay();
     nodes.reportFrom.value = firstDay();
+    nodes.fiscalPeriod.value = isoToday().slice(0, 7);
     nodes.entryTo.value = isoToday();
     nodes.reportTo.value = isoToday();
     const catalogsPayload = await request("/Contabilidad/Catalogos");
@@ -516,6 +707,7 @@
     setOptions(nodes.accountClassFilter, state.catalogs.classes || [], true);
     setOptions(nodes.accountClass, state.catalogs.classes || []);
     setOptions(nodes.accountNature, state.catalogs.natures || []);
+    setOptions(nodes.fiscalBook, state.catalogs.fiscalBooks || [], true);
     setOptions(nodes.reportType, [
       { value: "BALANCE_GENERAL", label: "Balance general" },
       { value: "ESTADO_RESULTADOS", label: "Estado de resultado" },

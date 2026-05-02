@@ -2872,13 +2872,13 @@ body.contabilidad-page .ops-topbar {
 
 .accounting-summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 8px;
 }
 
 .accounting-summary-grid .metric-card {
-  min-height: 88px;
+  min-height: 72px;
 }
 
 .accounting-tabs {
@@ -2971,6 +2971,79 @@ body.contabilidad-page .ops-topbar {
 
 .accounting-report-wrap {
   max-height: calc(100vh - 330px);
+}
+
+.fiscal-ledger-panel {
+  min-width: 0;
+}
+
+.fiscal-filter-row {
+  grid-template-columns: minmax(150px, 0.45fr) minmax(220px, 0.7fr) minmax(260px, 1fr) auto auto auto;
+}
+
+.fiscal-status-line {
+  margin-bottom: 8px;
+}
+
+.fiscal-grid-wrap {
+  max-height: calc(100vh - 330px);
+  overflow: auto;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+}
+
+.fiscal-grid {
+  min-width: 1880px;
+}
+
+.fiscal-grid th,
+.fiscal-grid td {
+  padding: 5px 6px !important;
+  white-space: nowrap;
+  vertical-align: middle !important;
+}
+
+.fiscal-grid th:nth-child(6),
+.fiscal-grid th:nth-child(7),
+.fiscal-grid td:nth-child(6),
+.fiscal-grid td:nth-child(7) {
+  min-width: 230px;
+}
+
+.fiscal-grid input,
+.fiscal-grid select {
+  width: 100%;
+  min-width: 92px;
+  height: 34px;
+  border: 1px solid var(--stroke);
+  border-radius: 6px;
+  background: var(--panel-soft);
+  color: var(--text);
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.fiscal-grid input:focus,
+.fiscal-grid select:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  border-color: var(--accent);
+}
+
+.fiscal-grid tr.is-draft {
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+}
+
+.fiscal-actions-cell {
+  min-width: 190px;
+}
+
+.fiscal-actions-cell .ghost-button,
+.fiscal-actions-cell .danger-button {
+  width: auto;
+  min-height: 32px;
+  padding: 6px 8px;
+  font-size: 0.78rem;
 }
 
 .report-heading {

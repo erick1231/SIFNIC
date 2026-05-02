@@ -25,6 +25,7 @@ public class ContabilidadController : Controller
             }
 
             EnsureAccountingSchema(connection);
+            EnsureFiscalDgiSchema(connection);
             MicrofinanceCoreSupport.EnsureSchema(connection);
             return Json(new
             {
@@ -56,6 +57,26 @@ public class ContabilidadController : Controller
                         new { value = "A", label = "Acreedora" },
                     },
                     reportTypes = new[] { "BALANCE_GENERAL", "ESTADO_RESULTADOS", "BALANCE_COMPROBACION", "CARTERA_CONTABLE", "PRIM_BASE" },
+                    fiscalBooks = new[]
+                    {
+                        new { value = "COMPRAS_IVA", label = "Compras / credito fiscal IVA" },
+                        new { value = "INGRESOS", label = "Ingresos mensuales" },
+                        new { value = "RETENCIONES", label = "Retenciones en la fuente" },
+                    },
+                    fiscalDocumentTypes = new[]
+                    {
+                        new { value = "FACTURA", label = "Factura" },
+                        new { value = "RECIBO", label = "Recibo" },
+                        new { value = "NOTA_CREDITO", label = "Nota credito" },
+                        new { value = "COMPROBANTE", label = "Comprobante" },
+                        new { value = "OTRO", label = "Otro" },
+                    },
+                    fiscalStatuses = new[]
+                    {
+                        new { value = "BORRADOR", label = "Borrador" },
+                        new { value = "VALIDADO", label = "Validado" },
+                        new { value = "REPORTADO_DGI", label = "Reportado DGI" },
+                    },
                     microfinanceCore = new
                     {
                         products = MicrofinanceCoreSupport.LoadProducts(connection),
@@ -125,6 +146,7 @@ public class ContabilidadController : Controller
             }
 
             EnsureAccountingSchema(connection);
+            EnsureFiscalDgiSchema(connection);
             var cutoff = (fecha ?? DateTime.Today).Date;
             using var command = new SqlCommand(
                 """
@@ -135,6 +157,9 @@ public class ContabilidadController : Controller
                     (SELECT COUNT(1) FROM contabilidad.asiento WHERE anulado = 0) AS asientos_activos,
                     (SELECT COUNT(1) FROM contabilidad.asiento WHERE anulado = 1) AS asientos_anulados,
                     (SELECT COUNT(1) FROM contabilidad.periodo_contable WHERE activo = 1 AND estado_periodo = N'ABIERTO') AS periodos_abiertos,
+                    (SELECT COUNT(1) FROM contabilidad.documento_fiscal_dgi WHERE anulado = 0 AND periodo = FORMAT(@fecha, N'yyyy-MM')) AS documentos_dgi,
+                    (SELECT ISNULL(SUM(monto_iva_trasladado), 0) FROM contabilidad.documento_fiscal_dgi WHERE anulado = 0 AND periodo = FORMAT(@fecha, N'yyyy-MM')) AS iva_dgi,
+                    (SELECT ISNULL(SUM(valor_retenido), 0) FROM contabilidad.documento_fiscal_dgi WHERE anulado = 0 AND periodo = FORMAT(@fecha, N'yyyy-MM')) AS retenciones_dgi,
                     (SELECT ISNULL(SUM(total_debito), 0) FROM reportes.vw_contabilidad_asientos WHERE anulado = 0 AND fecha_asiento <= @fecha) AS debitos,
                     (SELECT ISNULL(SUM(total_credito), 0) FROM reportes.vw_contabilidad_asientos WHERE anulado = 0 AND fecha_asiento <= @fecha) AS creditos,
                     (SELECT MAX(fecha_asiento) FROM contabilidad.asiento WHERE anulado = 0) AS ultimo_asiento;
@@ -155,6 +180,9 @@ public class ContabilidadController : Controller
                     activeEntries = ReadInt32(reader, "asientos_activos"),
                     voidEntries = ReadInt32(reader, "asientos_anulados"),
                     openPeriods = ReadInt32(reader, "periodos_abiertos"),
+                    fiscalDocuments = ReadInt32(reader, "documentos_dgi"),
+                    fiscalIva = ReadDecimal(reader, "iva_dgi"),
+                    fiscalRetentions = ReadDecimal(reader, "retenciones_dgi"),
                     debits = ReadDecimal(reader, "debitos"),
                     credits = ReadDecimal(reader, "creditos"),
                     difference = ReadDecimal(reader, "debitos") - ReadDecimal(reader, "creditos"),
@@ -750,6 +778,220 @@ public class ContabilidadController : Controller
         }
     }
 
+    [HttpGet]
+    public IActionResult ListarDocumentosFiscales(string? periodo, string? libro, string? search)
+    {
+        try
+        {
+            using var connection = OpenConnection();
+            var session = ResolveAccountingSession(connection);
+            if (session is null)
+            {
+                return Unauthorized(new { ok = false, message = "Sesion invalida o expirada." });
+            }
+
+            EnsureAccountingSchema(connection);
+            EnsureFiscalDgiSchema(connection);
+            var normalizedPeriod = NormalizePeriod(periodo);
+            var normalizedBook = NormalizeFiscalBook(libro);
+            using var command = new SqlCommand(
+                """
+                SELECT TOP (300)
+                    id_documento_fiscal,
+                    periodo,
+                    libro_fiscal,
+                    tipo_documento,
+                    numero_documento,
+                    fecha_documento,
+                    ruc,
+                    razon_social,
+                    descripcion_pago,
+                    ingreso_sin_iva,
+                    monto_iva_trasladado,
+                    codigo_renglon,
+                    ingresos_gravados_15,
+                    ingresos_gravados_7,
+                    ingresos_exentos,
+                    ingresos_exonerados,
+                    ingresos_brutos_mensuales,
+                    valor_cotizacion_inss,
+                    valor_fondo_pension_ahorro,
+                    base_imponible,
+                    valor_retenido,
+                    alicuota_retencion,
+                    codigo_retencion,
+                    codigo_cuenta,
+                    estado_documento,
+                    fecha_registro,
+                    usuario_registro
+                FROM contabilidad.documento_fiscal_dgi
+                WHERE anulado = 0
+                  AND periodo = @periodo
+                  AND (@libro = N'TODOS' OR libro_fiscal = @libro)
+                  AND (@buscar = N''
+                    OR ISNULL(numero_documento, N'') LIKE N'%' + @buscar + N'%'
+                    OR ISNULL(ruc, N'') LIKE N'%' + @buscar + N'%'
+                    OR ISNULL(razon_social, N'') LIKE N'%' + @buscar + N'%'
+                    OR ISNULL(descripcion_pago, N'') LIKE N'%' + @buscar + N'%')
+                ORDER BY fecha_documento DESC, id_documento_fiscal DESC;
+                """,
+                connection);
+            command.Parameters.Add("@periodo", SqlDbType.Char, 7).Value = normalizedPeriod;
+            command.Parameters.Add("@libro", SqlDbType.NVarChar, 30).Value = normalizedBook;
+            command.Parameters.Add("@buscar", SqlDbType.NVarChar, 180).Value = (search ?? string.Empty).Trim();
+
+            using var reader = command.ExecuteReader();
+            var items = new List<object>();
+            while (reader.Read())
+            {
+                items.Add(MapFiscalDocument(reader));
+            }
+
+            return Json(new { ok = true, data = items });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { ok = false, message = "No se pudieron cargar los documentos fiscales DGI.", detail = ex.Message });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult GuardarDocumentoFiscal([FromBody] FiscalDocumentSaveRequest request)
+    {
+        var errors = ValidateFiscalDocument(request);
+        if (errors.Count > 0)
+        {
+            return BadRequest(new { ok = false, message = "Revisa la fila fiscal antes de guardarla.", errors });
+        }
+
+        try
+        {
+            using var connection = OpenConnection();
+            var session = ResolveAccountingSession(connection);
+            if (session is null)
+            {
+                return Unauthorized(new { ok = false, message = "Sesion invalida o expirada." });
+            }
+
+            if (!CanMaintainAccounting(session))
+            {
+                return Forbid();
+            }
+
+            EnsureAccountingSchema(connection);
+            EnsureFiscalDgiSchema(connection);
+            using var command = new SqlCommand(
+                """
+                MERGE contabilidad.documento_fiscal_dgi AS target
+                USING (SELECT @id_documento_fiscal AS id_documento_fiscal) AS source
+                ON target.id_documento_fiscal = source.id_documento_fiscal AND @id_documento_fiscal > 0
+                WHEN MATCHED THEN
+                    UPDATE SET
+                        periodo = @periodo,
+                        libro_fiscal = @libro_fiscal,
+                        tipo_documento = @tipo_documento,
+                        numero_documento = @numero_documento,
+                        fecha_documento = @fecha_documento,
+                        ruc = @ruc,
+                        razon_social = @razon_social,
+                        descripcion_pago = @descripcion_pago,
+                        ingreso_sin_iva = @ingreso_sin_iva,
+                        monto_iva_trasladado = @monto_iva_trasladado,
+                        codigo_renglon = @codigo_renglon,
+                        ingresos_gravados_15 = @ingresos_gravados_15,
+                        ingresos_gravados_7 = @ingresos_gravados_7,
+                        ingresos_exentos = @ingresos_exentos,
+                        ingresos_exonerados = @ingresos_exonerados,
+                        ingresos_brutos_mensuales = @ingresos_brutos_mensuales,
+                        valor_cotizacion_inss = @valor_cotizacion_inss,
+                        valor_fondo_pension_ahorro = @valor_fondo_pension_ahorro,
+                        base_imponible = @base_imponible,
+                        valor_retenido = @valor_retenido,
+                        alicuota_retencion = @alicuota_retencion,
+                        codigo_retencion = @codigo_retencion,
+                        codigo_cuenta = @codigo_cuenta,
+                        estado_documento = @estado_documento,
+                        usuario_modificacion = @usuario,
+                        fecha_modificacion = SYSDATETIME()
+                WHEN NOT MATCHED THEN
+                    INSERT
+                    (
+                        periodo, libro_fiscal, tipo_documento, numero_documento, fecha_documento, ruc, razon_social,
+                        descripcion_pago, ingreso_sin_iva, monto_iva_trasladado, codigo_renglon,
+                        ingresos_gravados_15, ingresos_gravados_7, ingresos_exentos, ingresos_exonerados,
+                        ingresos_brutos_mensuales, valor_cotizacion_inss, valor_fondo_pension_ahorro,
+                        base_imponible, valor_retenido, alicuota_retencion, codigo_retencion, codigo_cuenta,
+                        estado_documento, usuario_registro
+                    )
+                    VALUES
+                    (
+                        @periodo, @libro_fiscal, @tipo_documento, @numero_documento, @fecha_documento, @ruc, @razon_social,
+                        @descripcion_pago, @ingreso_sin_iva, @monto_iva_trasladado, @codigo_renglon,
+                        @ingresos_gravados_15, @ingresos_gravados_7, @ingresos_exentos, @ingresos_exonerados,
+                        @ingresos_brutos_mensuales, @valor_cotizacion_inss, @valor_fondo_pension_ahorro,
+                        @base_imponible, @valor_retenido, @alicuota_retencion, @codigo_retencion, @codigo_cuenta,
+                        @estado_documento, @usuario
+                    )
+                OUTPUT INSERTED.id_documento_fiscal;
+                """,
+                connection);
+            AddFiscalDocumentParameters(command, request, session.Username);
+            var id = Convert.ToInt64(command.ExecuteScalar());
+            return Json(new { ok = true, message = "Fila fiscal DGI guardada.", data = new { id } });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { ok = false, message = "No se pudo guardar la fila fiscal DGI.", detail = ex.Message });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult AnularDocumentoFiscal([FromBody] FiscalDocumentStatusRequest request)
+    {
+        if (request.Id <= 0)
+        {
+            return BadRequest(new { ok = false, message = "Selecciona una fila fiscal." });
+        }
+
+        try
+        {
+            using var connection = OpenConnection();
+            var session = ResolveAccountingSession(connection);
+            if (session is null)
+            {
+                return Unauthorized(new { ok = false, message = "Sesion invalida o expirada." });
+            }
+
+            if (!CanMaintainAccounting(session))
+            {
+                return Forbid();
+            }
+
+            EnsureAccountingSchema(connection);
+            EnsureFiscalDgiSchema(connection);
+            using var command = new SqlCommand(
+                """
+                UPDATE contabilidad.documento_fiscal_dgi
+                SET anulado = 1,
+                    estado_documento = N'ANULADO',
+                    usuario_modificacion = @usuario,
+                    fecha_modificacion = SYSDATETIME()
+                WHERE id_documento_fiscal = @id_documento_fiscal;
+                """,
+                connection);
+            command.Parameters.Add("@id_documento_fiscal", SqlDbType.BigInt).Value = request.Id;
+            command.Parameters.Add("@usuario", SqlDbType.NVarChar, 120).Value = session.Username;
+            var affected = command.ExecuteNonQuery();
+            return affected == 0
+                ? NotFound(new { ok = false, message = "Fila fiscal no encontrada." })
+                : Json(new { ok = true, message = "Fila fiscal anulada." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { ok = false, message = "No se pudo anular la fila fiscal.", detail = ex.Message });
+        }
+    }
+
     private IActionResult ReportFromSql(string sql, DateTime? desde, DateTime? hasta, string errorMessage, bool singleDateMode = false)
     {
         try
@@ -846,6 +1088,106 @@ public class ContabilidadController : Controller
         };
     }
 
+    private static object MapFiscalDocument(SqlDataReader reader)
+    {
+        return new
+        {
+            id = ReadInt64(reader, "id_documento_fiscal"),
+            period = ReadString(reader, "periodo"),
+            book = ReadString(reader, "libro_fiscal"),
+            documentType = ReadString(reader, "tipo_documento"),
+            documentNumber = ReadString(reader, "numero_documento"),
+            documentDate = ReadDateTimeNullable(reader, "fecha_documento"),
+            ruc = ReadString(reader, "ruc"),
+            name = ReadString(reader, "razon_social"),
+            description = ReadString(reader, "descripcion_pago"),
+            incomeWithoutIva = ReadDecimal(reader, "ingreso_sin_iva"),
+            ivaAmount = ReadDecimal(reader, "monto_iva_trasladado"),
+            rowCode = ReadString(reader, "codigo_renglon"),
+            taxable15 = ReadDecimal(reader, "ingresos_gravados_15"),
+            taxable7 = ReadDecimal(reader, "ingresos_gravados_7"),
+            exempt = ReadDecimal(reader, "ingresos_exentos"),
+            exonerated = ReadDecimal(reader, "ingresos_exonerados"),
+            monthlyGrossIncome = ReadDecimal(reader, "ingresos_brutos_mensuales"),
+            inssContribution = ReadDecimal(reader, "valor_cotizacion_inss"),
+            pensionFund = ReadDecimal(reader, "valor_fondo_pension_ahorro"),
+            taxableBase = ReadDecimal(reader, "base_imponible"),
+            retainedAmount = ReadDecimal(reader, "valor_retenido"),
+            retentionRate = ReadDecimal(reader, "alicuota_retencion"),
+            retentionCode = ReadString(reader, "codigo_retencion"),
+            accountCode = ReadString(reader, "codigo_cuenta"),
+            status = ReadString(reader, "estado_documento"),
+            registeredAt = ReadDateTimeNullable(reader, "fecha_registro"),
+            registeredBy = ReadString(reader, "usuario_registro"),
+        };
+    }
+
+    private static Dictionary<string, string> ValidateFiscalDocument(FiscalDocumentSaveRequest request)
+    {
+        var errors = new Dictionary<string, string>();
+        if (!IsValidPeriod(request.Period))
+        {
+            errors["period"] = "El periodo debe tener formato AAAA-MM.";
+        }
+
+        if (NormalizeFiscalBook(request.Book) == "TODOS")
+        {
+            errors["book"] = "Selecciona libro fiscal: compras IVA, ingresos o retenciones.";
+        }
+
+        if (string.IsNullOrWhiteSpace(request.DocumentNumber))
+        {
+            errors["documentNumber"] = "El numero de documento es obligatorio.";
+        }
+
+        if (request.DocumentDate is null)
+        {
+            errors["documentDate"] = "La fecha del documento es obligatoria.";
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Ruc))
+        {
+            errors["ruc"] = "El RUC es obligatorio para planillas DGI.";
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            errors["name"] = "El nombre o razon social es obligatorio.";
+        }
+
+        return errors;
+    }
+
+    private static void AddFiscalDocumentParameters(SqlCommand command, FiscalDocumentSaveRequest request, string username)
+    {
+        command.Parameters.Add("@id_documento_fiscal", SqlDbType.BigInt).Value = request.Id.GetValueOrDefault();
+        command.Parameters.Add("@periodo", SqlDbType.Char, 7).Value = NormalizePeriod(request.Period);
+        command.Parameters.Add("@libro_fiscal", SqlDbType.NVarChar, 30).Value = NormalizeFiscalBook(request.Book);
+        command.Parameters.Add("@tipo_documento", SqlDbType.NVarChar, 40).Value = NormalizeDocumentType(request.DocumentType);
+        command.Parameters.Add("@numero_documento", SqlDbType.NVarChar, 60).Value = CleanText(request.DocumentNumber, 60);
+        command.Parameters.Add("@fecha_documento", SqlDbType.Date).Value = request.DocumentDate?.Date ?? DateTime.Today;
+        command.Parameters.Add("@ruc", SqlDbType.NVarChar, 30).Value = CleanText(request.Ruc, 30).ToUpperInvariant();
+        command.Parameters.Add("@razon_social", SqlDbType.NVarChar, 250).Value = CleanText(request.Name, 250).ToUpperInvariant();
+        command.Parameters.Add("@descripcion_pago", SqlDbType.NVarChar, 500).Value = CleanText(request.Description, 500);
+        command.Parameters.Add("@ingreso_sin_iva", SqlDbType.Decimal).Value = MoneyValue(request.IncomeWithoutIva);
+        command.Parameters.Add("@monto_iva_trasladado", SqlDbType.Decimal).Value = MoneyValue(request.IvaAmount);
+        command.Parameters.Add("@codigo_renglon", SqlDbType.NVarChar, 20).Value = CleanText(request.RowCode, 20);
+        command.Parameters.Add("@ingresos_gravados_15", SqlDbType.Decimal).Value = MoneyValue(request.Taxable15);
+        command.Parameters.Add("@ingresos_gravados_7", SqlDbType.Decimal).Value = MoneyValue(request.Taxable7);
+        command.Parameters.Add("@ingresos_exentos", SqlDbType.Decimal).Value = MoneyValue(request.Exempt);
+        command.Parameters.Add("@ingresos_exonerados", SqlDbType.Decimal).Value = MoneyValue(request.Exonerated);
+        command.Parameters.Add("@ingresos_brutos_mensuales", SqlDbType.Decimal).Value = MoneyValue(request.MonthlyGrossIncome);
+        command.Parameters.Add("@valor_cotizacion_inss", SqlDbType.Decimal).Value = MoneyValue(request.InssContribution);
+        command.Parameters.Add("@valor_fondo_pension_ahorro", SqlDbType.Decimal).Value = MoneyValue(request.PensionFund);
+        command.Parameters.Add("@base_imponible", SqlDbType.Decimal).Value = MoneyValue(request.TaxableBase);
+        command.Parameters.Add("@valor_retenido", SqlDbType.Decimal).Value = MoneyValue(request.RetainedAmount);
+        command.Parameters.Add("@alicuota_retencion", SqlDbType.Decimal).Value = MoneyValue(request.RetentionRate);
+        command.Parameters.Add("@codigo_retencion", SqlDbType.NVarChar, 20).Value = CleanText(request.RetentionCode, 20);
+        command.Parameters.Add("@codigo_cuenta", SqlDbType.NVarChar, 30).Value = NormalizeCode(request.AccountCode);
+        command.Parameters.Add("@estado_documento", SqlDbType.NVarChar, 30).Value = NormalizeFiscalStatus(request.Status);
+        command.Parameters.Add("@usuario", SqlDbType.NVarChar, 120).Value = string.IsNullOrWhiteSpace(username) ? "sistema" : username.Trim();
+    }
+
     private static SqlConnection OpenConnection()
     {
         var connection = new SqlConnection(ConexionDb.Cadena);
@@ -875,9 +1217,118 @@ public class ContabilidadController : Controller
         command.ExecuteNonQuery();
     }
 
+    private static void EnsureFiscalDgiSchema(SqlConnection connection)
+    {
+        const string sql = """
+            IF OBJECT_ID(N'contabilidad.documento_fiscal_dgi', N'U') IS NULL
+            BEGIN
+                CREATE TABLE contabilidad.documento_fiscal_dgi
+                (
+                    id_documento_fiscal BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_documento_fiscal_dgi PRIMARY KEY,
+                    periodo CHAR(7) NOT NULL,
+                    libro_fiscal NVARCHAR(30) NOT NULL,
+                    tipo_documento NVARCHAR(40) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_tipo DEFAULT N'FACTURA',
+                    numero_documento NVARCHAR(60) NOT NULL,
+                    fecha_documento DATE NOT NULL,
+                    ruc NVARCHAR(30) NOT NULL,
+                    razon_social NVARCHAR(250) NOT NULL,
+                    descripcion_pago NVARCHAR(500) NULL,
+                    ingreso_sin_iva DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_ingreso_sin_iva DEFAULT 0,
+                    monto_iva_trasladado DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_iva DEFAULT 0,
+                    codigo_renglon NVARCHAR(20) NULL,
+                    ingresos_gravados_15 DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_grav15 DEFAULT 0,
+                    ingresos_gravados_7 DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_grav7 DEFAULT 0,
+                    ingresos_exentos DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_exento DEFAULT 0,
+                    ingresos_exonerados DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_exonerado DEFAULT 0,
+                    ingresos_brutos_mensuales DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_bruto DEFAULT 0,
+                    valor_cotizacion_inss DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_inss DEFAULT 0,
+                    valor_fondo_pension_ahorro DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_pension DEFAULT 0,
+                    base_imponible DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_base DEFAULT 0,
+                    valor_retenido DECIMAL(18,2) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_retenido DEFAULT 0,
+                    alicuota_retencion DECIMAL(9,4) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_alicuota DEFAULT 0,
+                    codigo_retencion NVARCHAR(20) NULL,
+                    codigo_cuenta NVARCHAR(30) NULL,
+                    estado_documento NVARCHAR(30) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_estado DEFAULT N'BORRADOR',
+                    anulado BIT NOT NULL CONSTRAINT DF_documento_fiscal_dgi_anulado DEFAULT 0,
+                    usuario_registro NVARCHAR(120) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_usuario DEFAULT N'sistema',
+                    fecha_registro DATETIME2(0) NOT NULL CONSTRAINT DF_documento_fiscal_dgi_fecha DEFAULT SYSDATETIME(),
+                    usuario_modificacion NVARCHAR(120) NULL,
+                    fecha_modificacion DATETIME2(0) NULL,
+                    CONSTRAINT CK_documento_fiscal_dgi_libro CHECK (libro_fiscal IN (N'COMPRAS_IVA', N'INGRESOS', N'RETENCIONES')),
+                    CONSTRAINT CK_documento_fiscal_dgi_estado CHECK (estado_documento IN (N'BORRADOR', N'VALIDADO', N'REPORTADO_DGI', N'ANULADO'))
+                );
+            END;
+
+            IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_documento_fiscal_dgi_periodo_libro' AND object_id = OBJECT_ID(N'contabilidad.documento_fiscal_dgi'))
+            BEGIN
+                CREATE INDEX IX_documento_fiscal_dgi_periodo_libro
+                ON contabilidad.documento_fiscal_dgi(periodo, libro_fiscal, anulado, fecha_documento)
+                INCLUDE(numero_documento, ruc, razon_social, monto_iva_trasladado, valor_retenido);
+            END;
+
+            IF NOT EXISTS (SELECT 1 FROM contabilidad.documento_fiscal_dgi WHERE numero_documento = N'DGI-DEMO-IVA-001' AND periodo = FORMAT(SYSDATETIME(), N'yyyy-MM'))
+            BEGIN
+                INSERT INTO contabilidad.documento_fiscal_dgi
+                (
+                    periodo, libro_fiscal, tipo_documento, numero_documento, fecha_documento, ruc, razon_social,
+                    descripcion_pago, ingreso_sin_iva, monto_iva_trasladado, codigo_renglon, codigo_cuenta,
+                    estado_documento, usuario_registro
+                )
+                VALUES
+                (
+                    FORMAT(SYSDATETIME(), N'yyyy-MM'), N'COMPRAS_IVA', N'FACTURA', N'DGI-DEMO-IVA-001', CONVERT(date, SYSDATETIME()),
+                    N'J0310000001812', N'PROVEEDOR DEMO DGI', N'Compra operativa con credito fiscal IVA para validar la planilla 124.',
+                    10000, 1500, N'124', N'51010101', N'BORRADOR', N'sistema'
+                );
+            END;
+        """;
+
+        using var command = new SqlCommand(sql, connection);
+        command.ExecuteNonQuery();
+    }
+
     private static bool CanMaintainAccounting(CreditPortfolioSession session)
     {
         return session.HasAnyRole("ADMINISTRADOR", "ADMINISTRACION", "CONTABILIDAD");
+    }
+
+    private static string NormalizePeriod(string? value)
+    {
+        var text = (value ?? string.Empty).Trim();
+        if (IsValidPeriod(text))
+        {
+            return text;
+        }
+
+        return DateTime.Today.ToString("yyyy-MM");
+    }
+
+    private static bool IsValidPeriod(string? value)
+    {
+        return Regex.IsMatch((value ?? string.Empty).Trim(), @"^\d{4}-(0[1-9]|1[0-2])$");
+    }
+
+    private static string NormalizeFiscalBook(string? value)
+    {
+        var normalized = (value ?? "TODOS").Trim().ToUpperInvariant();
+        return normalized is "COMPRAS_IVA" or "INGRESOS" or "RETENCIONES" ? normalized : "TODOS";
+    }
+
+    private static string NormalizeDocumentType(string? value)
+    {
+        var normalized = (value ?? "FACTURA").Trim().ToUpperInvariant();
+        return normalized is "FACTURA" or "RECIBO" or "NOTA_CREDITO" or "COMPROBANTE" or "OTRO" ? normalized : "FACTURA";
+    }
+
+    private static string NormalizeFiscalStatus(string? value)
+    {
+        var normalized = (value ?? "BORRADOR").Trim().ToUpperInvariant();
+        return normalized is "VALIDADO" or "REPORTADO_DGI" ? normalized : "BORRADOR";
+    }
+
+    private static decimal MoneyValue(decimal? value)
+    {
+        return Math.Round(Math.Max(value.GetValueOrDefault(), 0), 2);
     }
 
     private static string NormalizeCode(string? value)
@@ -1003,4 +1454,38 @@ public sealed class AccountStatusRequest
 {
     public string? Code { get; set; }
     public bool Active { get; set; }
+}
+
+public sealed class FiscalDocumentSaveRequest
+{
+    public long? Id { get; set; }
+    public string? Period { get; set; }
+    public string? Book { get; set; }
+    public string? DocumentType { get; set; }
+    public string? DocumentNumber { get; set; }
+    public DateTime? DocumentDate { get; set; }
+    public string? Ruc { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public decimal? IncomeWithoutIva { get; set; }
+    public decimal? IvaAmount { get; set; }
+    public string? RowCode { get; set; }
+    public decimal? Taxable15 { get; set; }
+    public decimal? Taxable7 { get; set; }
+    public decimal? Exempt { get; set; }
+    public decimal? Exonerated { get; set; }
+    public decimal? MonthlyGrossIncome { get; set; }
+    public decimal? InssContribution { get; set; }
+    public decimal? PensionFund { get; set; }
+    public decimal? TaxableBase { get; set; }
+    public decimal? RetainedAmount { get; set; }
+    public decimal? RetentionRate { get; set; }
+    public string? RetentionCode { get; set; }
+    public string? AccountCode { get; set; }
+    public string? Status { get; set; }
+}
+
+public sealed class FiscalDocumentStatusRequest
+{
+    public long Id { get; set; }
 }
