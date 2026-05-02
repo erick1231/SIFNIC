@@ -1,0 +1,237 @@
+:root {
+  --ux-help-bg: rgba(8, 24, 31, 0.98);
+  --ux-help-border: rgba(98, 213, 219, 0.36);
+  --ux-help-text: #f7fbf7;
+  --ux-help-muted: rgba(247, 251, 247, 0.74);
+  --ux-help-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  --ux-focus: #23c7b6;
+}
+
+:root[data-theme="light"],
+body.light-theme,
+body.theme-light {
+  --ux-help-bg: rgba(255, 255, 255, 0.99);
+  --ux-help-border: rgba(0, 101, 114, 0.2);
+  --ux-help-text: #08212a;
+  --ux-help-muted: rgba(8, 33, 42, 0.68);
+  --ux-help-shadow: 0 18px 44px rgba(10, 34, 40, 0.16);
+  --ux-focus: #087f79;
+}
+
+.unsaved-guard-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(12, 25, 32, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.unsaved-guard-backdrop[hidden] {
+  display: none !important;
+}
+
+.unsaved-guard-dialog {
+  width: min(520px, calc(100vw - 32px));
+  border: 1px solid rgba(18, 74, 88, 0.16);
+  border-radius: 18px;
+  background: #ffffff;
+  color: #102832;
+  box-shadow: 0 24px 70px rgba(14, 35, 43, 0.24);
+  overflow: hidden;
+}
+
+.unsaved-guard-dialog > div {
+  padding: 22px 24px 16px;
+}
+
+.unsaved-guard-dialog h2 {
+  margin: 4px 0 8px;
+  color: #102832;
+  font-size: 1.35rem;
+}
+
+.unsaved-guard-dialog p {
+  margin: 0;
+  color: #536b75;
+}
+
+.unsaved-guard-dialog footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid rgba(18, 74, 88, 0.1);
+  background: #f7fafb;
+}
+
+:root[data-theme="dark"] .unsaved-guard-dialog {
+  border-color: rgba(148, 180, 190, 0.16);
+  background: #12252d;
+  color: #eef7f8;
+}
+
+:root[data-theme="dark"] .unsaved-guard-dialog h2 {
+  color: #f5fbfc;
+}
+
+:root[data-theme="dark"] .unsaved-guard-dialog p {
+  color: #b8c8ce;
+}
+
+:root[data-theme="dark"] .unsaved-guard-dialog footer {
+  border-color: rgba(148, 180, 190, 0.12);
+  background: #0d1e25;
+}
+
+button.ux-iconified,
+a.ux-iconified,
+.workspace-button.ux-iconified,
+.caja-tab.ux-iconified {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.52rem;
+  white-space: nowrap;
+}
+
+.ux-action-icon {
+  width: 1.05em;
+  height: 1.05em;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.menu-module-icon {
+  width: 1.28rem;
+  height: 1.28rem;
+  padding: 0.22rem;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 0.52rem;
+  color: var(--module-accent, currentColor);
+  background: color-mix(in srgb, var(--module-accent, currentColor) 14%, transparent);
+}
+
+input[readonly],
+textarea[readonly],
+select[disabled] {
+  cursor: not-allowed;
+}
+
+.field input::placeholder,
+.field textarea::placeholder,
+.form-field input::placeholder,
+.form-field textarea::placeholder,
+.search-field input::placeholder {
+  color: color-mix(in srgb, currentColor 48%, transparent);
+}
+
+.table-shell,
+.table-wrap,
+.data-table-shell,
+.grid-table-shell,
+.list-table,
+.mini-table {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.table-shell table,
+.table-wrap table,
+.data-table-shell table,
+.grid-table-shell table,
+.list-table table,
+.mini-table table {
+  width: 100%;
+}
+
+.table-shell th,
+.table-shell td,
+.table-wrap th,
+.table-wrap td,
+.data-table-shell th,
+.data-table-shell td {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .ux-action-icon {
+    width: 1em;
+    height: 1em;
+  }
+}
+
+.sifnic-global-theme-toggle {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1000;
+  width: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  border: 1px solid rgba(16, 74, 88, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #14323d;
+  box-shadow: 0 10px 24px rgba(30, 72, 84, 0.13);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  opacity: 0.82;
+  backdrop-filter: blur(12px);
+}
+
+.sifnic-global-theme-toggle:hover,
+.sifnic-global-theme-toggle:focus-visible {
+  opacity: 1;
+}
+
+.sifnic-global-theme-toggle::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  box-shadow: inset -5px -3px 0 0 currentColor;
+}
+
+.sifnic-global-theme-toggle span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+:root[data-theme="dark"] .sifnic-global-theme-toggle {
+  border-color: rgba(210, 231, 237, 0.12);
+  background: rgba(13, 31, 42, 0.9);
+  color: #f6f2e9;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.26);
+}
+
+.fin-page .ops-topbar #themeToggle,
+.app-shell > .topbar #themeToggle,
+.payroll-shell > .topbar #themeToggle {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .sifnic-global-theme-toggle {
+    right: 10px;
+    bottom: 10px;
+  }
+}

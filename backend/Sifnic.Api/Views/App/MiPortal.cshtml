@@ -1,0 +1,424 @@
+@{
+    ViewData["Title"] = "Mi Portal";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Mi Portal</title>
+    <meta
+      name="description"
+      content="Portal personal del colaborador para vacaciones, horas extra y consulta de ficha."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body>
+    <div class="page-aura page-aura-left" aria-hidden="true"></div>
+    <div class="page-aura page-aura-right" aria-hidden="true"></div>
+
+    <main class="portal-shell">
+      <header class="topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button">
+            Panel principal
+          </button>
+
+          <div class="title-block">
+            <span class="eyebrow">Autoservicio</span>
+            <h1>Mi Portal</h1>
+          </div>
+        </div>
+
+        <div class="topbar-group topbar-group-right">
+          <button class="ghost-button theme-toggle-header" id="themeToggle" type="button" aria-pressed="false" data-theme-toggle>
+            <span id="themeToggleLabel" data-theme-label>Modo oscuro</span>
+          </button>
+
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+
+          <button class="ghost-button" id="logoutButton" type="button">
+            Cerrar sesion
+          </button>
+        </div>
+      </header>
+
+      <section class="board-card">
+        <header class="board-head">
+          <div class="board-copy">
+            <span class="eyebrow">Portal del colaborador</span>
+            <h2 id="portalTitle">Tu ficha y tus solicitudes</h2>
+            <p id="portalNote">
+              Desde aqui puedes revisar tu informacion, tu saldo disponible de vacaciones
+              y registrar solicitudes de vacaciones u horas extra.
+            </p>
+          </div>
+
+          <button class="primary-button" id="refreshPortal" type="button">
+            Actualizar
+          </button>
+        </header>
+
+        <section class="metrics-grid">
+          <article class="metric-card">
+            <span class="metric-label">Vacaciones disponibles</span>
+            <strong class="metric-value" id="metricVacationAvailable">0.00 d</strong>
+            <small class="metric-meta" id="metricVacationMeta">0 acumulados</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Horas extra semana</span>
+            <strong class="metric-value" id="metricWeekHours">0.00 h</strong>
+            <small class="metric-meta" id="metricMonthHoursMeta">0.00 h este mes</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Solicitudes pendientes</span>
+            <strong class="metric-value" id="metricPendingRequests">0</strong>
+            <small class="metric-meta" id="metricPendingMeta">0 vacaciones / 0 horas</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Contrato vigente</span>
+            <strong class="metric-value metric-value-small" id="metricContractType">Sin contrato</strong>
+            <small class="metric-meta" id="metricContractMeta">Sin registro activo</small>
+          </article>
+        </section>
+
+        <section class="empty-hero" id="portalEmptyState" hidden>
+          <strong>No hay ficha de empleado vinculada.</strong>
+          <p>
+            Tu usuario inicio sesion correctamente, pero aun no esta enlazado a un colaborador de RRHH.
+          </p>
+        </section>
+
+        <div id="portalContent">
+          <nav class="portal-nav" aria-label="Secciones de mi portal">
+            <button class="tab-button is-active" type="button" data-portal-tab="ficha">
+              Mi ficha
+            </button>
+            <button class="tab-button" type="button" data-portal-tab="solicitudes">
+              Solicitudes
+            </button>
+            <button class="tab-button" type="button" data-portal-tab="registros">
+              Mis registros
+            </button>
+            <button class="tab-button" type="button" data-portal-tab="esquelas">
+              Mis esquelas
+            </button>
+          </nav>
+
+          <div class="portal-section-stack">
+            <section class="portal-section" data-portal-section="ficha">
+              <section class="content-grid content-grid-profile">
+                <article class="panel-card">
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Ficha</span>
+                      <h3>Mi informacion</h3>
+                    </div>
+                  </div>
+
+                  <section class="profile-identity-card">
+                    <div class="profile-avatar-shell">
+                      <div class="profile-avatar-frame" id="profileAvatarFrame">
+                        <img id="profileAvatarImage" alt="Foto de perfil" hidden />
+                        <span id="profileAvatarFallback">--</span>
+                      </div>
+
+                      <div class="profile-avatar-copy">
+                        <strong id="profileAvatarName">Colaborador</strong>
+                        <span id="profileAvatarRole">Sin cargo</span>
+                        <small id="profileAvatarSupervisor">Sin supervision asignada</small>
+                      </div>
+                    </div>
+
+                    <div class="form-actions profile-avatar-actions">
+                      <input
+                        type="file"
+                        id="profilePhotoInput"
+                        accept=".png,.jpg,.jpeg,.webp"
+                        hidden
+                      />
+                      <button class="ghost-button" id="changeProfilePhotoButton" type="button">
+                        Subir foto
+                      </button>
+                    </div>
+                  </section>
+
+                  <div class="profile-sections" id="employeeProfile"></div>
+                </article>
+
+                <article class="panel-card">
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Resumen</span>
+                      <h3>Estado actual</h3>
+                    </div>
+                  </div>
+
+                  <div class="detail-grid" id="employeeSummary"></div>
+                </article>
+              </section>
+            </section>
+
+            <section class="portal-section" data-portal-section="solicitudes" hidden>
+              <section class="request-stage">
+                <nav class="request-nav" aria-label="Tipos de solicitud">
+                  <button class="tab-button is-active" type="button" data-request-tab="vacaciones">
+                    Vacaciones
+                  </button>
+                  <button class="tab-button" type="button" data-request-tab="horas-extra">
+                    Horas extra
+                  </button>
+                </nav>
+
+                <article class="panel-card request-panel" data-request-panel="vacaciones">
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Vacaciones</span>
+                      <h3>Solicitar vacaciones</h3>
+                    </div>
+                  </div>
+
+                  <form class="form-grid" id="vacationForm" novalidate>
+                    <label class="field">
+                      <span>Fecha inicio</span>
+                      <input type="date" id="vacationStartDate" required />
+                    </label>
+
+                    <label class="field">
+                      <span>Fecha fin</span>
+                      <input type="date" id="vacationEndDate" required />
+                    </label>
+
+                    <div class="field field-full">
+                      <span>Modalidad</span>
+
+                      <label class="toggle-card" for="vacationHalfDay">
+                        <input type="checkbox" id="vacationHalfDay" />
+                        <span class="toggle-card-copy">
+                          <strong class="toggle-card-title">Es medio dia</strong>
+                          <small class="toggle-card-meta">
+                            Descuenta 0.5 del saldo disponible de vacaciones.
+                          </small>
+                        </span>
+                      </label>
+
+                      <div class="choice-row" id="vacationHalfDayShiftRow" hidden>
+                        <label class="choice-pill">
+                          <input type="radio" name="vacationHalfDayShift" value="MANANA" />
+                          <span>Manana</span>
+                        </label>
+
+                        <label class="choice-pill">
+                          <input type="radio" name="vacationHalfDayShift" value="TARDE" />
+                          <span>Tarde</span>
+                        </label>
+                      </div>
+
+                      <p class="hint-text">
+                        Si marcas medio dia, la fecha fin se iguala a la fecha inicio y se descuentan 0.5 dias.
+                      </p>
+                    </div>
+
+                    <label class="field field-full">
+                      <span>Observacion</span>
+                      <textarea id="vacationObservation" rows="4" placeholder="Describe el motivo o contexto de tu solicitud."></textarea>
+                    </label>
+
+                    <div class="form-actions field-full">
+                      <button class="ghost-button" id="clearVacationForm" type="button">
+                        Limpiar
+                      </button>
+                      <button class="primary-button" id="submitVacationButton" type="submit">
+                        Guardar vacacion
+                      </button>
+                    </div>
+                  </form>
+                </article>
+
+                <article class="panel-card request-panel" data-request-panel="horas-extra" hidden>
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Horas extra</span>
+                      <h3>Solicitar hora extra</h3>
+                    </div>
+                  </div>
+
+                  <form class="form-grid" id="overtimeForm" novalidate>
+                    <label class="field">
+                      <span>Fecha</span>
+                      <input type="date" id="overtimeDate" required />
+                    </label>
+
+                    <label class="field">
+                      <span>Tipo</span>
+                      <select id="overtimeType" required></select>
+                    </label>
+
+                    <label class="field">
+                      <span>Hora inicio</span>
+                      <input type="time" id="overtimeStartTime" required />
+                    </label>
+
+                    <label class="field">
+                      <span>Hora fin</span>
+                      <input type="time" id="overtimeEndTime" required />
+                    </label>
+
+                    <label class="field field-full">
+                      <span>Justificacion</span>
+                      <textarea id="overtimeObservation" rows="4" placeholder="Explica por que se realizaron las horas extra."></textarea>
+                    </label>
+
+                    <div class="form-actions field-full">
+                      <span class="hint-text" id="overtimeComputedHours">Horas calculadas: 0.00</span>
+                      <button class="ghost-button" id="clearOvertimeForm" type="button">
+                        Limpiar
+                      </button>
+                      <button class="primary-button" id="submitOvertimeButton" type="submit">
+                        Guardar hora extra
+                      </button>
+                    </div>
+                  </form>
+                </article>
+              </section>
+            </section>
+
+            <section class="portal-section" data-portal-section="registros" hidden>
+              <section class="records-grid records-grid-portal">
+                <article class="panel-card">
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Mis registros</span>
+                      <h3>Vacaciones</h3>
+                    </div>
+                  </div>
+
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Dias</th>
+                          <th>Estado</th>
+                          <th>Detalle</th>
+                          <th>Accion</th>
+                        </tr>
+                      </thead>
+                      <tbody id="vacationsTableBody"></tbody>
+                    </table>
+                  </div>
+                  <p class="empty-state" id="vacationsEmptyState" hidden>No hay vacaciones registradas.</p>
+                </article>
+
+                <article class="panel-card">
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Mis registros</span>
+                      <h3>Horas extra</h3>
+                    </div>
+                  </div>
+
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Horas</th>
+                          <th>Estado</th>
+                          <th>Detalle</th>
+                          <th>Accion</th>
+                        </tr>
+                      </thead>
+                      <tbody id="overtimeTableBody"></tbody>
+                    </table>
+                  </div>
+                  <p class="empty-state" id="overtimeEmptyState" hidden>No hay horas extra registradas.</p>
+                </article>
+
+                <article class="panel-card">
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Mis registros</span>
+                      <h3>Resumen</h3>
+                    </div>
+                  </div>
+
+                  <div class="detail-grid">
+                    <article class="detail-item">
+                      <span>Disponibles</span>
+                      <strong id="recordsVacationAvailable">0.00 dias</strong>
+                    </article>
+                    <article class="detail-item">
+                      <span>Tomadas</span>
+                      <strong id="recordsVacationTaken">0.00 dias</strong>
+                    </article>
+                    <article class="detail-item">
+                      <span>Pendientes</span>
+                      <strong id="recordsVacationPending">0.00 dias</strong>
+                    </article>
+                    <article class="detail-item">
+                      <span>Horas extra pendientes</span>
+                      <strong id="recordsOvertimePending">0</strong>
+                    </article>
+                  </div>
+                </article>
+              </section>
+            </section>
+
+            <section class="portal-section" data-portal-section="esquelas" hidden>
+              <section class="content-grid">
+                <article class="panel-card panel-card-wide">
+                  <div class="panel-head">
+                    <div>
+                      <span class="eyebrow">Pago</span>
+                      <h3>Mis esquelas</h3>
+                    </div>
+                  </div>
+
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Periodo</th>
+                          <th>Fecha pago</th>
+                          <th>Neto</th>
+                          <th>Generada</th>
+                          <th>Accion</th>
+                        </tr>
+                      </thead>
+                      <tbody id="payslipsTableBody"></tbody>
+                    </table>
+                  </div>
+                  <p class="empty-state" id="payslipsEmptyState" hidden>
+                    Aun no tienes esquelas de pago publicadas en tu portal.
+                  </p>
+                </article>
+              </section>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/js/portal/mi-portal.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

@@ -1,0 +1,439 @@
+@{
+    ViewData["Title"] = "Solicitudes de Credito";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Solicitudes de Credito</title>
+    <meta name="description" content="Modulo de solicitudes de credito SIFNIC." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/creditos/assets/css/creditos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body class="solicitudes-page fin-page" data-request-view="bandeja">
+    <main class="ops-shell">
+      <header class="ops-topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button" title="Volver al panel principal">Volver al panel</button>
+          <div class="title-block">
+            <span class="eyebrow">Colocacion</span>
+            <h1>Solicitudes de Credito</h1>
+            <p class="fin-page-intent">Bandeja, expediente y decision controlada.</p>
+          </div>
+        </div>
+
+        <div class="topbar-group topbar-group-right">
+          <button class="ghost-button" id="themeToggle" type="button" aria-pressed="false">
+            <span id="themeToggleLabel">Modo oscuro</span>
+          </button>
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+          <button class="ghost-button" id="closeSession" type="button">Cerrar sesion</button>
+        </div>
+      </header>
+
+      <nav class="workspace-tabs request-workspace-tabs" id="requestWorkspaceTabs" aria-label="Vistas de solicitudes">
+        <button class="is-active" type="button" data-request-view="bandeja">Bandeja</button>
+        <button type="button" data-request-view="expediente">Expediente</button>
+        <button type="button" data-request-view="documentos">Documentos y plan</button>
+      </nav>
+
+      <section class="ops-layout">
+        <aside class="ops-sidebar">
+          <div class="toolbar-card">
+            <label class="field">
+              <span>Buscar</span>
+              <input id="searchInput" type="search" placeholder="Solicitud, cliente, destino" />
+            </label>
+            <label class="field">
+              <span>Estado</span>
+              <select id="statusFilter"></select>
+            </label>
+            <div class="toolbar-actions">
+              <button class="primary-button" id="newButton" type="button">Nueva</button>
+              <button class="ghost-button" id="refreshButton" type="button">Actualizar</button>
+            </div>
+          </div>
+
+          <div class="toolbar-card">
+            <div>
+              <span class="eyebrow">Reporteria</span>
+              <h2>CONAMI</h2>
+            </div>
+            <label class="field">
+              <span>Fecha corte</span>
+              <input id="reportCutoffDate" type="date" />
+            </label>
+            <div class="report-actions">
+              <button class="ghost-button" id="conamiPdfButton" type="button">CONAMI PDF</button>
+              <button class="ghost-button" id="conamiExcelButton" type="button">CONAMI Excel</button>
+              <button class="ghost-button" id="moraPdfButton" type="button">Mora PDF</button>
+              <button class="ghost-button" id="moraExcelButton" type="button">Mora Excel</button>
+            </div>
+          </div>
+
+          <section class="metric-stack">
+            <article class="metric-card">
+              <span>Solicitudes</span>
+              <strong id="metricRequests">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Monto solicitado</span>
+              <strong id="metricAmount">0.00</strong>
+            </article>
+            <article class="metric-card">
+              <span>A comite</span>
+              <strong id="metricCommittee">0</strong>
+            </article>
+          </section>
+        </aside>
+
+        <section class="ops-main" id="opsMain">
+          <section class="table-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Bandeja</span>
+                <h2>Solicitudes</h2>
+              </div>
+              <span class="counter-pill" id="tableCounter">0 registros</span>
+            </div>
+
+            <div class="request-grid" id="tableBody" role="list"></div>
+          </section>
+
+          <aside class="detail-panel" id="detailPanel">
+            <button class="detail-toggle-button" id="detailToggleButton" type="button" aria-expanded="true" title="Ocultar expediente de credito">
+              <span id="detailToggleIcon">&gt;</span>
+            </button>
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Expediente</span>
+                <h2 id="detailTitle">Sin seleccion</h2>
+            </div>
+            <span class="status-pill" id="detailStatus">-</span>
+          </div>
+            <section class="decision-strip request-decision-strip" id="requestDecisionStrip">
+              <article>
+                <span>Decision</span>
+                <strong>Selecciona una solicitud para ver faltantes y bloqueos.</strong>
+              </article>
+            </section>
+
+            <div class="detail-actions grouped-actions request-actions">
+              <section class="action-group action-group-main" aria-label="Acciones principales">
+                <span>Acciones principales</span>
+                <button class="ghost-button" id="viewButton" type="button">Ver expediente</button>
+                <button class="ghost-button" id="editButton" type="button">Editar</button>
+                <button class="primary-button" id="approveButton" type="button">Aprobar</button>
+                <button class="ghost-button" id="improveButton" type="button">Mejora</button>
+                <button class="danger-button" id="rejectButton" type="button">Rechazar</button>
+              </section>
+              <section class="action-group" aria-label="Documentos">
+                <span>Documentos</span>
+                <button class="ghost-button" id="filePdfButton" type="button">Exp. PDF</button>
+                <button class="ghost-button" id="fileExcelButton" type="button">Exp. Excel</button>
+                <button class="ghost-button" id="planPdfButton" type="button">Plan PDF</button>
+                <button class="ghost-button" id="planExcelButton" type="button">Plan Excel</button>
+              </section>
+              <section class="action-group action-group-analysis" aria-label="Analisis">
+                <span>Analisis</span>
+                <button class="ghost-button" id="planButton" type="button">Plan de pago</button>
+              </section>
+            </div>
+
+            <div class="detail-grid" id="detailBody"></div>
+            <div class="workflow-panel" id="workflowBody"></div>
+            <div class="related-panel" id="planBody"></div>
+          </aside>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="modalBackdrop" hidden>
+      <section class="modal-shell modal-wide" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <header class="modal-head">
+          <div>
+            <span class="eyebrow">Solicitud</span>
+            <h2 id="modalTitle">Nueva solicitud</h2>
+          </div>
+          <button class="ghost-button" id="modalClose" type="button">Cerrar</button>
+        </header>
+
+        <form class="ops-form" id="requestForm">
+          <input type="hidden" id="requestId" />
+
+          <section class="form-section form-section-full">
+            <h3>Prospeccion formal</h3>
+            <div class="form-grid">
+              <label class="field"><span>Estado previo</span><select id="prospectionStage" name="prospectionStage"></select></label>
+              <label class="field"><span>Promotor</span><input id="promoter" name="promoter" maxlength="150" placeholder="Responsable comercial" /></label>
+              <label class="field"><span>Sucursal</span><input id="branch" name="branch" maxlength="100" value="CASA MATRIZ" /></label>
+              <label class="field"><span>Oficina credito</span><input id="office" name="office" maxlength="100" value="CENTRAL" /></label>
+              <label class="field"><span>Fecha sistema</span><input id="systemDate" name="systemDate" type="date" readonly /></label>
+              <label class="field field-wide"><span>Motivo descarte o rechazo</span><input id="discardRejectReason" name="discardRejectReason" maxlength="500" placeholder="Obligatorio si se descarta o rechaza" /></label>
+            </div>
+
+            <div class="prospection-split">
+              <article class="prospection-box">
+                <h4>Referencias</h4>
+                <div class="form-grid form-grid-compact">
+                  <label class="field"><span>Personal</span><input id="personalReferenceName" maxlength="150" placeholder="Nombre" /></label>
+                  <label class="field"><span>Telefono</span><input id="personalReferencePhone" maxlength="50" /></label>
+                  <label class="field field-wide"><span>Resultado</span><input id="personalReferenceResult" maxlength="250" placeholder="Confirmada, no contesta, mala referencia..." /></label>
+                  <label class="field"><span>Comercial</span><input id="commercialReferenceName" maxlength="150" placeholder="Proveedor / cliente" /></label>
+                  <label class="field"><span>Telefono</span><input id="commercialReferencePhone" maxlength="50" /></label>
+                  <label class="field field-wide"><span>Resultado</span><input id="commercialReferenceResult" maxlength="250" /></label>
+                  <label class="field"><span>Financiera</span><input id="financialReferenceName" maxlength="150" placeholder="IMF / banco / tercero" /></label>
+                  <label class="field"><span>Telefono</span><input id="financialReferencePhone" maxlength="50" /></label>
+                  <label class="field field-wide"><span>Resultado</span><input id="financialReferenceResult" maxlength="250" /></label>
+                </div>
+              </article>
+
+              <article class="prospection-box">
+                <h4>Visitas</h4>
+                <div class="form-grid form-grid-compact">
+                  <label class="field"><span>Fecha casa</span><input id="homeVisitDate" type="date" /></label>
+                  <label class="field"><span>Resultado casa</span><select id="homeVisitResult"></select></label>
+                  <label class="field field-wide"><span>Observacion casa</span><input id="homeVisitObservation" maxlength="300" /></label>
+                  <label class="field field-wide"><span>Evidencia casa</span><input id="homeVisitEvidence" maxlength="300" placeholder="Foto, acta, ruta o referencia" /></label>
+                  <label class="field"><span>Fecha negocio</span><input id="businessVisitDate" type="date" /></label>
+                  <label class="field"><span>Resultado negocio</span><select id="businessVisitResult"></select></label>
+                  <label class="field field-wide"><span>Observacion negocio</span><input id="businessVisitObservation" maxlength="300" /></label>
+                  <label class="field field-wide"><span>Evidencia negocio</span><input id="businessVisitEvidence" maxlength="300" placeholder="Foto, acta, ruta o referencia" /></label>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Solicitud</h3>
+            <div class="form-grid">
+              <label class="field"><span>Cedula cliente</span><input id="clientCedulaLookup" maxlength="50" placeholder="Buscar o validar" /></label>
+              <div class="inline-actions">
+                <button class="ghost-button" id="lookupClientButton" type="button">Buscar</button>
+                <button class="ghost-button" id="showQuickClientButton" type="button">Crear cliente</button>
+              </div>
+              <label class="field field-wide"><span>Cliente</span><select id="clientId" name="clientId"></select></label>
+              <div class="client-result" id="clientLookupResult" hidden></div>
+              <label class="field"><span>Fecha</span><input id="requestDate" name="requestDate" type="date" /></label>
+              <label class="field"><span>Tipo de credito</span><select id="product" name="product"></select></label>
+              <label class="field"><span>Moneda</span><select id="currency" name="currency"></select></label>
+              <label class="field"><span>Monto</span><input id="amount" name="amount" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Plazo meses</span><input id="termMonths" name="termMonths" type="number" min="1" max="120" step="1" /></label>
+              <label class="field"><span>Tasa anual</span><input id="annualRate" name="annualRate" type="number" min="0" max="200" step="0.000001" readonly /></label>
+              <label class="field"><span>Comision desembolso %</span><input id="commissionRate" name="commissionRate" type="number" min="0" max="100" step="0.000001" readonly /></label>
+              <label class="field"><span>Deslizamiento %</span><input id="slidingRate" name="slidingRate" type="number" min="0" max="100" step="0.000001" readonly /></label>
+              <label class="field"><span>Mora anual %</span><input id="moraRate" name="moraRate" type="number" min="0" max="200" step="0.000001" readonly /></label>
+              <label class="field"><span>Frecuencia</span><select id="frequency" name="frequency"></select></label>
+              <label class="field"><span>Tipo cuota</span><select id="installmentType" name="installmentType"></select></label>
+              <label class="field"><span>Estado</span><select id="status" name="status"></select></label>
+              <label class="field field-wide"><span>Destino</span><input id="destination" name="destination" maxlength="250" /></label>
+            </div>
+          </section>
+
+          <section class="form-section quick-client-section" id="quickClientSection" hidden>
+            <h3>Alta rapida de cliente</h3>
+            <div class="form-grid">
+              <label class="field"><span>Nombres</span><input id="quickClientNames" maxlength="150" /></label>
+              <label class="field"><span>Apellidos</span><input id="quickClientLastNames" maxlength="150" /></label>
+              <label class="field"><span>Telefono</span><input id="quickClientPhone" maxlength="50" /></label>
+              <label class="field"><span>Ingreso mensual</span><input id="quickClientMonthlyIncome" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Egresos</span><input id="quickClientMonthlyExpenses" type="number" min="0" step="0.01" /></label>
+              <label class="field field-wide"><span>Direccion</span><input id="quickClientAddress" maxlength="300" /></label>
+              <label class="field field-wide"><span>Actividad economica</span><input id="quickClientEconomicActivity" maxlength="200" /></label>
+            </div>
+            <div class="form-message" id="quickClientMessage" hidden></div>
+            <div class="quick-client-actions">
+              <button class="primary-button" id="createQuickClientButton" type="button">Crear y usar cliente</button>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Capacidad de pago</h3>
+            <div class="form-grid">
+              <label class="field"><span>Ingresos declarados</span><input id="declaredIncome" name="declaredIncome" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Egresos declarados</span><input id="declaredExpenses" name="declaredExpenses" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Fuente ingreso</span><input id="incomeSource" name="incomeSource" maxlength="200" /></label>
+              <label class="field"><span>Actividad financiada</span><input id="financedActivity" name="financedActivity" maxlength="200" /></label>
+              <label class="field"><span>Nivel riesgo</span><select id="riskLevel" name="riskLevel"></select></label>
+              <label class="field"><span>Clasif. CONAMI</span><select id="conamiClassification" name="conamiClassification"></select></label>
+              <label class="check-field"><input id="requiresCommittee" name="requiresCommittee" type="checkbox" /><span>Comite</span></label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-title-row">
+              <h3>SIN RIESGO y endeudamiento</h3>
+              <button class="ghost-button compact-button" id="prepareSinRiesgoButton" type="button">Preparar</button>
+            </div>
+            <div class="form-grid">
+              <label class="check-field"><input id="sinRiesgoConsulted" type="checkbox" /><span>Reporte recibido</span></label>
+              <label class="field"><span>Fuente</span><input id="sinRiesgoSource" value="SIN_RIESGO" readonly /></label>
+              <label class="field"><span>No. reporte</span><input id="sinRiesgoReportNumber" maxlength="80" /></label>
+              <label class="field"><span>Fecha consulta</span><input id="sinRiesgoDate" type="date" /></label>
+              <label class="field"><span>Resultado</span><select id="sinRiesgoResult"></select></label>
+              <label class="field"><span>Score</span><input id="sinRiesgoScore" type="number" min="0" max="999" step="1" /></label>
+              <label class="field"><span>Clasificacion</span><input id="sinRiesgoClassification" maxlength="50" placeholder="A, B, C..." /></label>
+              <label class="field"><span>Deuda externa</span><input id="externalDebt" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Cuota externa</span><input id="externalInstallment" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Deuda interna</span><input id="internalDebt" type="number" readonly /></label>
+              <label class="field"><span>Cuota interna</span><input id="internalInstallment" type="number" readonly /></label>
+              <label class="field"><span>Cuota nueva</span><input id="requestedInstallment" type="number" readonly /></label>
+              <label class="field"><span>Deuda total</span><input id="totalDebt" type="number" readonly /></label>
+              <label class="field"><span>Cuotas totales</span><input id="totalInstallment" type="number" readonly /></label>
+              <label class="field"><span>Endeudamiento %</span><input id="debtCapacityRatio" type="number" readonly /></label>
+              <label class="field field-wide"><span>Alertas automaticas</span><input id="sinRiesgoAlerts" readonly /></label>
+              <label class="field field-wide"><span>Notas SIN RIESGO</span><textarea id="sinRiesgoNotes" rows="2" maxlength="500"></textarea></label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Garantia y fiador</h3>
+            <div class="form-grid">
+              <label class="field"><span>Tipo garantia</span><select id="guaranteeType" name="guaranteeType"></select></label>
+              <label class="field"><span>Valor garantia</span><input id="guaranteeValue" name="guaranteeValue" type="number" min="0" step="0.01" /></label>
+              <label class="field field-wide"><span>Descripcion garantia</span><input id="guaranteeDescription" name="guaranteeDescription" maxlength="500" /></label>
+              <label class="field"><span>Fiador</span><input id="guarantorName" name="guarantorName" maxlength="200" /></label>
+              <label class="field"><span>Cedula fiador</span><input id="guarantorIdentification" name="guarantorIdentification" maxlength="50" /></label>
+              <label class="field"><span>Telefono fiador</span><input id="guarantorPhone" name="guarantorPhone" maxlength="50" /></label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Check de expediente</h3>
+            <div class="check-grid">
+              <label class="check-field"><input id="chkIdentification" type="checkbox" /><span>Identificacion</span></label>
+              <label class="check-field"><input id="chkFileCompleted" type="checkbox" /><span>Expediente</span></label>
+              <label class="check-field"><input id="chkHomeBusinessVisit" type="checkbox" /><span>Visita</span></label>
+              <label class="check-field"><input id="chkPaymentCapacity" type="checkbox" /><span>Capacidad</span></label>
+              <label class="check-field"><input id="chkConamiReview" type="checkbox" /><span>CONAMI</span></label>
+              <label class="check-field"><input id="chkListCheck" type="checkbox" /><span>Listas</span></label>
+              <label class="check-field"><input id="chkGuaranteeReview" type="checkbox" /><span>Garantia</span></label>
+            </div>
+            <label class="field field-wide"><span>Observacion</span><textarea id="notes" name="notes" rows="3" maxlength="500"></textarea></label>
+          </section>
+
+          <section class="form-section form-plan-preview">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Simulacion</span>
+                <h3>Plan de pago</h3>
+              </div>
+              <button class="ghost-button" id="previewPlanButton" type="button">Generar</button>
+            </div>
+            <div class="plan-summary" id="modalPlanSummary"></div>
+            <div class="mini-table" id="modalPlanTable"></div>
+          </section>
+
+          <div class="form-message" id="formMessage" hidden></div>
+          <footer class="modal-actions">
+            <button class="ghost-button" id="backFormButton" type="button">Volver</button>
+            <button class="ghost-button" id="cancelFormButton" type="button">Cancelar</button>
+            <button class="primary-button" type="submit">Guardar</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="resolutionBackdrop" hidden>
+      <section class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="resolutionTitle">
+        <header class="modal-head">
+          <div>
+            <span class="eyebrow">Resolucion</span>
+            <h2 id="resolutionTitle">Resolver solicitud</h2>
+          </div>
+          <button class="ghost-button" id="resolutionClose" type="button">Cerrar</button>
+        </header>
+
+        <form class="ops-form" id="resolutionForm">
+          <input type="hidden" id="resolutionAction" />
+          <label class="field field-wide"><span>Observacion</span><textarea id="resolutionObservation" rows="4"></textarea></label>
+          <div class="form-message" id="resolutionMessage" hidden></div>
+          <footer class="modal-actions">
+            <button class="ghost-button" id="resolutionBack" type="button">Volver</button>
+            <button class="ghost-button" id="resolutionCancel" type="button">Cancelar</button>
+            <button class="primary-button" type="submit">Confirmar</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="approvalBackdrop" hidden>
+      <section class="modal-shell modal-wide approval-modal-shell" role="dialog" aria-modal="true" aria-labelledby="approvalTitle">
+        <header class="modal-head approval-modal-head">
+          <div>
+            <span class="eyebrow">Expediente de credito</span>
+            <h2 id="approvalTitle">Evaluacion y aprobacion</h2>
+          </div>
+          <button class="ghost-button" id="approvalClose" type="button">Cerrar</button>
+        </header>
+
+        <div class="approval-modal-grid">
+          <section class="approval-main">
+            <div class="approval-hero" id="approvalHero"></div>
+            <div class="approval-section-grid">
+              <article class="approval-section">
+                <div class="section-title">
+                  <span class="eyebrow">Simulacion</span>
+                  <h3>Condiciones propuestas</h3>
+                </div>
+                <div class="approval-kpi-grid" id="approvalSimulation"></div>
+              </article>
+              <article class="approval-section">
+                <div class="section-title">
+                  <span class="eyebrow">Expediente</span>
+                  <h3>Checklist y alertas</h3>
+                </div>
+                <div class="approval-checklist" id="approvalChecklist"></div>
+              </article>
+            </div>
+            <article class="approval-section">
+              <div class="section-title">
+                <span class="eyebrow">Plan de pago</span>
+                <h3>Primeras cuotas simuladas</h3>
+              </div>
+              <div class="mini-table approval-plan-preview" id="approvalPlanPreview"></div>
+            </article>
+          </section>
+
+          <aside class="approval-decision-panel">
+            <div class="section-title">
+              <span class="eyebrow">Decision</span>
+              <h3>Resolucion del comite</h3>
+            </div>
+            <label class="field"><span>Monto a desembolsar</span><input id="approvalAmount" type="number" min="0" step="0.01" /></label>
+            <div class="approval-money-stack">
+              <article><span>Comision financiada</span><strong id="approvalCommissionAmount">0.00</strong></article>
+              <article><span>Capital del credito</span><strong id="approvalFinancedAmount">0.00</strong></article>
+              <article><span>Monto en mano</span><strong id="approvalNetAmount">0.00</strong></article>
+            </div>
+            <label class="field"><span>Observacion / mejora solicitada</span><textarea id="approvalObservation" rows="4" placeholder="Condiciones, motivo de rechazo o mejora requerida"></textarea></label>
+            <div class="form-message" id="approvalMessage" hidden></div>
+            <footer class="approval-actions">
+              <button class="primary-button" id="approvalApproveButton" type="button">Aprobar y enviar a caja</button>
+              <button class="ghost-button" id="approvalImproveButton" type="button">Solicitar mejora</button>
+              <button class="danger-button" id="approvalRejectButton" type="button">Rechazar</button>
+            </footer>
+          </aside>
+        </div>
+      </section>
+    </div>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/js/shared/unsaved-guard.js" asp-append-version="true"></script>
+    <script src="~/modules/creditos/solicitudes.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "Simulador de Credito";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Simulador de Credito</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/creditos/assets/css/creditos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body class="solicitudes-page simulador-page fin-page">
+    <main class="ops-shell">
+      <header class="ops-topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button">Volver al panel</button>
+          <div class="title-block">
+            <span class="eyebrow">Colocacion</span>
+            <h1>Simulador de Credito</h1>
+            <p class="fin-page-intent">Conclusion ejecutiva para cuota, costo, capacidad de pago y cumplimiento de politica.</p>
+          </div>
+        </div>
+        <div class="topbar-group topbar-group-right">
+          <button class="ghost-button" id="themeToggle" type="button"><span id="themeToggleLabel">Modo oscuro</span></button>
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+          <button class="ghost-button" id="closeSession" type="button">Cerrar sesion</button>
+        </div>
+      </header>
+
+      <section class="ops-layout simulator-layout">
+        <section class="table-panel simulator-input-panel">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Consulta rapida</span>
+              <h2>Datos del credito</h2>
+            </div>
+            <button class="primary-button" id="calculateButton" type="button">Calcular</button>
+          </div>
+          <form class="ops-form simulator-form" id="simulatorForm">
+            <section class="form-section">
+              <h3>Credito</h3>
+              <div class="form-grid">
+                <label class="field"><span>Tipo de credito</span><select id="product"></select></label>
+                <label class="field"><span>Moneda</span><select id="currency"><option>NIO</option><option>USD</option></select></label>
+                <label class="field"><span>Monto credito</span><input id="amount" type="number" min="0" step="0.01" value="15000" /></label>
+                <label class="field"><span>Fecha desembolso</span><input id="startDate" type="date" /></label>
+                <label class="field"><span>Plazo meses</span><input id="termMonths" type="number" min="1" max="120" value="6" /></label>
+                <label class="field"><span>Frecuencia</span><select id="frequency"><option>MENSUAL</option><option>QUINCENAL</option><option>SEMANAL</option><option>DIARIO</option></select></label>
+                <label class="field"><span>Tasa anual</span><input id="annualRate" type="number" min="0" max="200" step="0.000001" readonly /></label>
+                <label class="field"><span>Deslizamiento anual</span><input id="slidingRate" type="number" min="0" max="100" step="0.000001" readonly /></label>
+                <label class="field"><span>Comision desembolso %</span><input id="commissionRate" type="number" min="0" max="100" step="0.000001" readonly /></label>
+                <label class="field"><span>Comision se cobra</span><select id="commissionMode" disabled><option value="DESCONTADA">AL DESEMBOLSO</option></select></label>
+                <label class="field"><span>Otros cargos</span><input id="otherCharges" type="number" min="0" step="0.01" value="0" /></label>
+                <label class="field"><span>Mora anual %</span><input id="moraRate" type="number" min="0" max="200" step="0.000001" readonly /></label>
+              </div>
+            </section>
+
+            <section class="form-section">
+              <h3>Endeudamiento</h3>
+              <div class="form-grid">
+                <label class="field"><span>Ingreso mensual</span><input id="monthlyIncome" type="number" min="0" step="0.01" value="23000" /></label>
+                <label class="field"><span>Ingreso conyuge</span><input id="spouseIncome" type="number" min="0" step="0.01" value="0" /></label>
+                <label class="field"><span>Remesas/otros</span><input id="otherIncome" type="number" min="0" step="0.01" value="0" /></label>
+                <label class="field"><span>Egresos familiares</span><input id="monthlyExpenses" type="number" min="0" step="0.01" value="0" /></label>
+                <label class="field"><span>Cuotas externas</span><input id="externalInstallment" type="number" min="0" step="0.01" value="0" /></label>
+                <label class="field"><span>Cuotas internas</span><input id="internalInstallment" type="number" min="0" step="0.01" value="0" /></label>
+                <label class="field"><span>Ingreso disponible</span><input id="paymentCapacity" type="number" min="0" step="0.01" readonly /></label>
+                <label class="field"><span>Cuota nueva</span><input id="newInstallment" readonly /></label>
+                <label class="field"><span>Cuota maxima sana</span><input id="healthyInstallment" readonly /></label>
+              </div>
+            </section>
+          </form>
+        </section>
+
+        <aside class="detail-panel simulator-result-panel">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Resultado</span>
+              <h2 id="resultTitle">Simulacion</h2>
+            </div>
+            <span class="status-pill" id="debtStatus">-</span>
+          </div>
+          <section class="simulator-executive" id="simulatorExecutive"></section>
+          <div class="detail-grid" id="resultGrid"></div>
+          <div class="simulator-kpi-strip" id="kpiStrip"></div>
+          <div class="workflow-panel" id="resultAdvice"></div>
+          <div class="related-panel" id="planBody"></div>
+        </aside>
+      </section>
+    </main>
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/modules/creditos/simulador.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

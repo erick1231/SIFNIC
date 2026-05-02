@@ -1,0 +1,3215 @@
+:root {
+  --bg: #061119;
+  --panel: rgba(9, 26, 35, 0.92);
+  --panel-soft: rgba(255, 255, 255, 0.055);
+  --panel-strong: rgba(7, 22, 31, 0.96);
+  --stroke: rgba(170, 202, 204, 0.16);
+  --text: #f4f2e8;
+  --text-soft: rgba(244, 242, 232, 0.68);
+  --accent: #1fd0bc;
+  --gold: #f4be63;
+  --green: #8ee887;
+  --danger: #ff8b7d;
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+:root[data-theme="light"] {
+  --bg: #eef4f5;
+  --panel: rgba(255, 255, 255, 0.97);
+  --panel-soft: rgba(17, 67, 80, 0.07);
+  --panel-strong: #ffffff;
+  --stroke: rgba(27, 72, 84, 0.2);
+  --text: #102c36;
+  --text-soft: #47616a;
+  --accent: #007f72;
+  --gold: #8f650e;
+  --green: #216c31;
+  --danger: #a5372d;
+  --shadow: 0 16px 34px rgba(27, 57, 66, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body:not(.modals-ready) .modal-backdrop {
+  display: none !important;
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    linear-gradient(145deg, rgba(3, 16, 25, 0.96), rgba(6, 27, 39, 0.96)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 44px);
+  color: var(--text);
+  font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+:root[data-theme="light"] body {
+  background:
+    linear-gradient(145deg, #d8e2e4, #e6edee),
+    repeating-linear-gradient(90deg, rgba(13, 49, 63, 0.035) 0 1px, transparent 1px 44px);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ops-shell {
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 6px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 7px;
+}
+
+.ops-topbar,
+.ops-sidebar,
+.table-panel,
+.detail-panel,
+.modal-shell,
+.toolbar-card,
+.metric-card {
+  border: 1px solid var(--stroke);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.ops-topbar {
+  min-height: 58px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.topbar-group,
+.toolbar-actions,
+.report-actions,
+.detail-actions,
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.topbar-group-right {
+  justify-content: flex-end;
+}
+
+.title-block {
+  display: grid;
+  gap: 2px;
+}
+
+.eyebrow {
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+.metric-card strong,
+.session-chip strong {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+}
+
+h2 {
+  font-size: 1.05rem;
+}
+
+h3 {
+  font-size: 0.98rem;
+}
+
+.session-chip {
+  min-height: 36px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--panel-soft);
+  display: grid;
+  gap: 2px;
+}
+
+.session-chip span,
+.metric-card span,
+.field span,
+.data-table td,
+.related-panel,
+.detail-grid,
+.counter-pill,
+.status-pill {
+  color: var(--text-soft);
+}
+
+.ghost-button,
+.primary-button,
+.danger-button {
+  min-height: 34px;
+  border-radius: 8px;
+  padding: 0 11px;
+  border: 1px solid var(--stroke);
+  color: var(--text);
+  font-weight: 800;
+  background: var(--panel-soft);
+}
+
+.primary-button {
+  border-color: rgba(31, 208, 188, 0.42);
+  background: linear-gradient(135deg, rgba(31, 208, 188, 0.95), rgba(14, 132, 119, 0.95));
+  color: #031019;
+}
+
+.danger-button {
+  border-color: rgba(255, 139, 125, 0.42);
+  background: rgba(255, 139, 125, 0.12);
+  color: var(--danger);
+}
+
+.ops-layout {
+  min-height: 0;
+  height: calc(100dvh - 79px);
+  display: grid;
+  grid-template-columns: minmax(270px, 330px) 1fr;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.clientes-page .ops-layout {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.clientes-page .ops-sidebar {
+  position: relative;
+  grid-template-columns: minmax(720px, 1.1fr) minmax(520px, 0.9fr);
+  align-items: stretch;
+  overflow: visible;
+}
+
+.clientes-page .toolbar-card {
+  grid-template-columns: minmax(220px, 1fr) minmax(130px, 0.45fr) minmax(130px, 0.45fr) max-content;
+  align-items: end;
+  min-width: 0;
+}
+
+.clientes-page .toolbar-actions {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.clientes-page .toolbar-actions button {
+  flex: 0 0 auto;
+}
+
+.clientes-page .metric-stack {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.clientes-page .metric-card {
+  min-height: 74px;
+}
+
+.clientes-page .ops-main {
+  grid-template-columns: minmax(0, 1fr) 52px;
+}
+
+.clientes-page .ops-main:not(.detail-collapsed) {
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 520px);
+}
+
+.solicitudes-page .ops-layout {
+  grid-template-columns: minmax(300px, 360px) 1fr;
+}
+
+.cartera-page .ops-layout {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cartera-page .ops-shell {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cartera-page [hidden] {
+  display: none !important;
+}
+
+.caja-layout {
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+}
+
+.caja-layout-full {
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+}
+
+.caja-sidebar {
+  overflow: auto;
+}
+
+.caja-main {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+}
+
+.caja-pay-panel {
+  overflow: auto;
+}
+
+.caja-pay-grid {
+  min-height: 0;
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.caja-search-grid {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.caja-payment-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.caja-payment-grid .form-message,
+.caja-payment-grid .caja-inline-actions {
+  grid-column: 1 / -1;
+}
+
+.caja-session-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.credit-results {
+  display: grid;
+  gap: 8px;
+}
+
+.credit-result-button {
+  width: 100%;
+  border: 1px solid var(--stroke);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.caja-filter-row {
+  margin: 8px;
+  grid-template-columns: minmax(280px, 1fr) 150px 150px auto auto;
+  align-items: end;
+}
+
+.denomination-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.denomination-line input {
+  text-align: right;
+}
+
+.caja-count-summary {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.caja-count-summary span {
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+}
+
+.caja-count-summary strong {
+  display: block;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.cartera-page .ops-main {
+  grid-template-columns: minmax(0, 1fr) 52px;
+}
+
+.cartera-page .ops-main:not(.detail-collapsed) {
+  grid-template-columns: minmax(0, 1fr) minmax(410px, 520px);
+}
+
+.cartera-page .ops-sidebar {
+  grid-template-columns: minmax(520px, 1.25fr) minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.cartera-page .ops-sidebar > .toolbar-card {
+  grid-template-columns: minmax(240px, 1.1fr) minmax(150px, 0.7fr) minmax(150px, 0.7fr) minmax(150px, 0.65fr) minmax(260px, 0.9fr);
+  align-items: end;
+  min-width: 0;
+  gap: 8px;
+  padding: 8px;
+}
+
+.cartera-page .ops-sidebar > .toolbar-card .toolbar-actions {
+  align-items: end;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.cartera-page .ops-sidebar > .toolbar-card .toolbar-actions button {
+  flex: 1 1 96px;
+  min-width: 0;
+}
+
+.cartera-page .metric-stack {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cartera-page .metric-card {
+  min-height: 50px;
+  padding: 8px 10px;
+}
+
+.cartera-page .metric-card strong {
+  font-size: 0.98rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.cartera-workstack {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(300px, 1fr) minmax(170px, 0.45fr);
+  gap: 6px;
+  overflow: hidden;
+}
+
+.cartera-mode-board {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cartera-mode-card {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 7px 10px;
+  background: var(--panel);
+  color: var(--text);
+  text-align: left;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 12px;
+  box-shadow: var(--shadow);
+}
+
+.cartera-mode-card strong,
+.cartera-mode-card small,
+.cartera-mode-card em {
+  overflow-wrap: anywhere;
+}
+
+.cartera-mode-card strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+}
+
+.cartera-mode-card small {
+  color: var(--text-soft);
+  font-weight: 700;
+  grid-column: 1 / -1;
+  line-height: 1.2;
+  display: none;
+}
+
+.cartera-mode-card em {
+  align-self: start;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--panel-soft);
+  color: var(--text);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.cartera-mode-card.is-active {
+  border-color: rgba(31, 208, 188, 0.48);
+  background: linear-gradient(135deg, rgba(31, 208, 188, 0.14), var(--panel));
+}
+
+.cartera-recovery-panel {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+}
+
+.cartera-mora-panel {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.mora-bucket-grid {
+  min-width: 0;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.mora-bucket {
+  min-height: 76px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel-soft);
+  display: grid;
+  gap: 3px;
+}
+
+.mora-bucket span {
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.mora-bucket strong {
+  color: var(--text);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.mora-bucket small,
+.mora-bucket em {
+  color: var(--text-soft);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.mora-warning {
+  border-color: rgba(244, 190, 99, 0.36);
+}
+
+.mora-danger {
+  border-color: rgba(255, 139, 125, 0.42);
+}
+
+.cartera-recovery-toolbar {
+  margin: 8px;
+  grid-template-columns: minmax(180px, 1fr) auto;
+  align-items: end;
+}
+
+.cartera-recovery-summary {
+  padding: 0 8px 8px;
+}
+
+.cartera-recovery-table {
+  min-width: 760px;
+}
+
+.cartera-page .cartera-table {
+  min-width: 1040px;
+}
+
+.mora-table {
+  min-width: 980px;
+}
+
+.mora-table tbody tr {
+  cursor: pointer;
+}
+
+.call-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 0 8px;
+  margin: 0 4px 4px 0;
+  border: 1px solid var(--stroke);
+  background: var(--panel-soft);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.cartera-page .table-panel .data-table th,
+.cartera-page .table-panel .data-table td {
+  padding: 7px 9px;
+}
+
+.cartera-page .table-panel .data-table td {
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.cartera-page .detail-panel {
+  padding: 8px;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, auto) minmax(0, auto) minmax(0, 1fr);
+  align-content: start;
+  gap: 6px;
+}
+
+.cartera-page .detail-grid {
+  gap: 6px;
+}
+
+.cartera-page .detail-item {
+  min-height: 46px;
+  padding: 7px 9px;
+}
+
+.cartera-page .detail-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cartera-page .detail-actions button {
+  min-height: 32px;
+  padding: 0 8px;
+  font-size: 0.86rem;
+}
+
+.solicitudes-page .simulator-layout {
+  grid-template-columns: minmax(520px, 680px) 1fr;
+}
+
+.simulator-form {
+  overflow: visible;
+  padding: 0;
+}
+
+.simulator-input-panel,
+.simulator-result-panel {
+  padding: 10px;
+}
+
+.simulator-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.simulator-kpi {
+  min-height: 62px;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: var(--panel-soft);
+  display: grid;
+  gap: 4px;
+}
+
+.simulator-kpi span {
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.simulator-kpi strong {
+  color: var(--text);
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.simulator-kpi.is-gold {
+  border-color: rgba(255, 198, 94, 0.34);
+}
+
+.simulator-kpi.is-strong {
+  border-color: rgba(31, 208, 188, 0.32);
+  background: rgba(31, 208, 188, 0.08);
+}
+
+.simulator-advice-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--text-soft);
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.simulator-plan-table {
+  max-height: calc(100dvh - 505px);
+  min-height: 190px;
+}
+
+.solicitudes-page .ops-main {
+  grid-template-columns: minmax(0, 1fr) 52px;
+}
+
+.solicitudes-page .ops-main:not(.detail-collapsed) {
+  grid-template-columns: minmax(0, 1fr) minmax(430px, 540px);
+}
+
+.ops-sidebar {
+  border-radius: 12px;
+  padding: 8px;
+  align-self: stretch;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  overflow: auto;
+}
+
+.toolbar-card {
+  border-radius: 10px;
+  padding: 9px;
+  display: grid;
+  gap: 8px;
+}
+
+.metric-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.metric-card {
+  border-radius: 10px;
+  padding: 9px;
+  display: grid;
+  gap: 4px;
+}
+
+.metric-card strong {
+  font-size: 1.18rem;
+}
+
+.ops-main {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(720px, 1fr) minmax(430px, 540px);
+  gap: 8px;
+}
+
+.ops-main.detail-collapsed {
+  grid-template-columns: minmax(720px, 1fr) 48px;
+}
+
+.clientes-page .ops-main.detail-collapsed,
+.solicitudes-page .ops-main.detail-collapsed {
+  grid-template-columns: minmax(0, 1fr) 52px;
+}
+
+.table-panel,
+.detail-panel {
+  min-width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.detail-panel {
+  position: relative;
+  padding: 10px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  overflow: auto;
+}
+
+.detail-toggle-button {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: 34px;
+  min-height: 34px;
+  justify-self: end;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: var(--panel-soft);
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.detail-panel.is-collapsed {
+  padding: 7px;
+  overflow: hidden;
+}
+
+.detail-panel.is-collapsed .panel-head,
+.detail-panel.is-collapsed .detail-actions,
+.detail-panel.is-collapsed .detail-grid,
+.detail-panel.is-collapsed .related-panel,
+.detail-panel.is-collapsed .workflow-panel {
+  display: none;
+}
+
+.detail-panel.is-collapsed .detail-toggle-button {
+  justify-self: center;
+}
+
+.detail-panel.is-collapsed::after {
+  content: "Detalle";
+  writing-mode: vertical-rl;
+  justify-self: center;
+  color: var(--text-soft);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.solicitudes-page .detail-panel.is-collapsed::after {
+  content: "Expediente";
+}
+
+.cartera-page .detail-panel.is-collapsed::after {
+  content: "Cartera";
+}
+
+.panel-head {
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.table-panel > .panel-head {
+  border-bottom: 1px solid var(--stroke);
+}
+
+.counter-pill,
+.status-pill {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: var(--panel-soft);
+  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.status-pill.status-danger {
+  border-color: rgba(255, 139, 125, 0.36);
+  background: rgba(255, 139, 125, 0.14);
+  color: var(--danger);
+}
+
+.status-pill.status-ok {
+  border-color: rgba(142, 232, 135, 0.32);
+  background: rgba(142, 232, 135, 0.12);
+  color: var(--green);
+}
+
+.table-wrap {
+  min-height: 0;
+  overflow: auto;
+}
+
+.data-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--stroke);
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--panel-strong);
+  color: var(--text);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.data-table tr {
+  transition: background 0.16s ease;
+}
+
+.data-table tbody tr[data-id] {
+  cursor: pointer;
+}
+
+.data-table tr:hover,
+.data-table tr.is-selected {
+  background: rgba(31, 208, 188, 0.08);
+}
+
+.data-table button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  padding: 0;
+}
+
+.field {
+  position: relative;
+  display: grid;
+  gap: 4px;
+}
+
+.field span {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  padding: 7px 9px;
+  outline: none;
+}
+
+:root[data-theme="light"] .field input,
+:root[data-theme="light"] .field select,
+:root[data-theme="light"] .field textarea,
+:root[data-theme="light"] .check-field {
+  background: #ffffff;
+  color: var(--text);
+}
+
+.field select option {
+  background: #ffffff;
+  color: #102c36;
+}
+
+.field input[readonly],
+.field select:disabled,
+.field textarea[readonly] {
+  background: rgba(142, 232, 135, 0.08);
+  border-color: rgba(142, 232, 135, 0.22);
+}
+
+.field textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: rgba(31, 208, 188, 0.58);
+  box-shadow: 0 0 0 3px rgba(31, 208, 188, 0.1);
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.detail-actions {
+  align-items: stretch;
+}
+
+.detail-actions button {
+  flex: 1 1 auto;
+}
+
+.report-actions {
+  align-items: stretch;
+}
+
+.report-actions button {
+  flex: 1 1 130px;
+  min-width: 0;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.detail-item {
+  min-height: 56px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--panel-soft);
+  display: grid;
+  gap: 5px;
+}
+
+.detail-item span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.detail-item strong {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.related-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.workflow-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.workflow-card {
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-soft);
+  border: 1px solid var(--stroke);
+  display: grid;
+  gap: 8px;
+}
+
+.workflow-steps,
+.checklist-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.workflow-steps span,
+.checklist-strip span {
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 5px 8px;
+  border: 1px solid var(--stroke);
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.workflow-steps span.is-done,
+.checklist-strip span.is-done {
+  border-color: rgba(142, 232, 135, 0.34);
+  background: rgba(142, 232, 135, 0.12);
+  color: var(--green);
+}
+
+.checklist-strip span.is-pending {
+  border-color: rgba(244, 190, 99, 0.34);
+  background: rgba(244, 190, 99, 0.12);
+  color: var(--gold);
+}
+
+.related-card {
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-soft);
+  display: grid;
+  gap: 6px;
+}
+
+.related-card strong,
+.related-card span {
+  overflow-wrap: anywhere;
+}
+
+.badge-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  padding: 0 8px;
+  background: rgba(31, 208, 188, 0.1);
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.badge.is-danger {
+  background: rgba(255, 139, 125, 0.14);
+  color: var(--danger);
+}
+
+.badge.is-gold {
+  background: rgba(244, 190, 99, 0.14);
+  color: var(--gold);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.58);
+  display: none;
+  place-items: center;
+}
+
+.modal-backdrop.is-open {
+  display: grid;
+}
+
+.modal-backdrop[hidden] {
+  display: none !important;
+}
+
+.modal-shell {
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 16px);
+  border-radius: 12px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.modal-wide {
+  width: min(1680px, calc(100vw - 16px));
+}
+
+.modal-head {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--stroke);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ops-form {
+  min-height: 0;
+  overflow: auto;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.modal-wide .ops-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.modal-wide .form-section-full {
+  grid-column: 1 / -1;
+}
+
+.form-section {
+  border-radius: 10px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.form-section h3 {
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--stroke);
+  margin-bottom: 8px;
+}
+
+.section-title-row h3 {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.compact-button {
+  min-height: 32px;
+  padding: 6px 10px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.form-grid-compact {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.form-grid-compact .field-wide {
+  grid-column: span 4;
+}
+
+.prospection-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.prospection-box {
+  min-width: 0;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel-soft);
+}
+
+.prospection-box h4 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.inline-actions {
+  min-height: 55px;
+  display: flex;
+  align-items: end;
+  gap: 6px;
+}
+
+.inline-actions .ghost-button {
+  min-height: 34px;
+  flex: 1;
+}
+
+.client-result {
+  grid-column: span 4;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: rgba(142, 232, 135, 0.1);
+  color: var(--green);
+  font-weight: 800;
+  padding: 8px 10px;
+}
+
+.client-result.is-warning {
+  background: rgba(244, 190, 99, 0.12);
+  color: var(--gold);
+}
+
+.quick-client-section {
+  border-color: rgba(244, 190, 99, 0.34);
+}
+
+.quick-client-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.check-field {
+  min-height: 34px;
+  border-radius: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--stroke);
+  background: var(--panel-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.check-field input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.form-message {
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 139, 125, 0.12);
+  color: var(--danger);
+  font-weight: 800;
+}
+
+.form-message.is-success {
+  background: rgba(142, 232, 135, 0.12);
+  color: var(--green);
+}
+
+.modal-actions {
+  position: sticky;
+  bottom: -10px;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  padding-top: 8px;
+  background: linear-gradient(180deg, transparent, var(--panel) 22%);
+}
+
+.modal-wide .form-message {
+  grid-column: 1 / -1;
+}
+
+.plan-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.plan-summary article,
+.mini-table {
+  border-radius: 8px;
+  background: var(--panel-soft);
+  border: 1px solid var(--stroke);
+}
+
+.plan-summary article {
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.plan-summary span {
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.plan-summary strong {
+  color: var(--text);
+}
+
+.mini-table {
+  max-height: 210px;
+  overflow: auto;
+}
+
+table.mini-table {
+  width: 100%;
+  max-height: none;
+  border-collapse: collapse;
+  overflow: visible;
+}
+
+.mini-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mini-table th,
+.mini-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--stroke);
+  text-align: left;
+  color: var(--text-soft);
+}
+
+.mini-table th {
+  color: var(--text);
+  font-size: 0.72rem;
+}
+
+.cartera-table {
+  min-width: 1160px;
+}
+
+.regulatory-shell {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.regulatory-controls,
+.regulatory-results {
+  min-width: 0;
+}
+
+.regulatory-controls {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--panel-soft);
+}
+
+.regulatory-check {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.regulatory-check input {
+  width: 18px;
+  height: 18px;
+}
+
+.regulatory-action-stack {
+  align-items: stretch;
+}
+
+.regulatory-action-stack button {
+  flex: 1 1 100%;
+}
+
+.regulatory-results {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+}
+
+.regulatory-totals {
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+}
+
+.regulatory-table-wrap {
+  min-height: 260px;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+}
+
+.regulatory-table {
+  min-width: 980px;
+}
+
+.caja-table {
+  min-width: 980px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+body.caja-page {
+  overflow: auto;
+}
+
+.caja-board {
+  width: 100%;
+  min-width: 0;
+  min-height: calc(100dvh - 79px);
+  height: auto;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 8px;
+  overflow: visible;
+}
+
+.caja-board > *,
+.caja-command-strip > *,
+.caja-workspace > * {
+  min-width: 0;
+}
+
+.caja-command-strip {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.caja-session-card {
+  grid-template-columns: minmax(120px, 0.24fr) minmax(0, 1fr) minmax(250px, 0.34fr);
+  align-items: center;
+}
+
+.caja-session-card .toolbar-actions {
+  justify-content: flex-end;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.caja-session-card .toolbar-actions button {
+  min-width: 0;
+  min-height: 30px;
+  flex: 1 1 76px;
+  padding: 0 8px;
+  font-size: 0.82rem;
+}
+
+.caja-session-card .detail-item {
+  min-height: 50px;
+  padding: 7px 8px;
+}
+
+.caja-session-card .detail-item strong {
+  font-size: 0.86rem;
+  line-height: 1.22;
+}
+
+.caja-metric-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.caja-metric-strip .metric-card {
+  min-height: 84px;
+}
+
+.caja-summary-card {
+  min-height: 0;
+  grid-template-columns: minmax(86px, 0.42fr) minmax(0, 1fr);
+  align-items: start;
+  overflow: hidden;
+}
+
+.caja-summary-card .related-panel {
+  min-height: 0;
+  overflow: auto;
+}
+
+.caja-tabs {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow-x: auto;
+}
+
+.caja-tab {
+  min-height: 38px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: var(--text);
+  background: var(--panel-soft);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.caja-tab.is-active {
+  border-color: rgba(31, 208, 188, 0.55);
+  background: rgba(31, 208, 188, 0.16);
+  color: var(--accent);
+}
+
+.caja-view-panel {
+  min-height: 0;
+  display: none;
+}
+
+.caja-view-panel.is-active {
+  display: grid;
+}
+
+.caja-workspace {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: 8px;
+  overflow: visible;
+}
+
+.caja-quick-pay {
+  grid-template-columns: minmax(360px, 0.72fr) minmax(0, 1.28fr);
+}
+
+.caja-credit-panel,
+.caja-payment-panel,
+.caja-receipts-panel {
+  min-height: 0;
+}
+
+.caja-credit-grid,
+.caja-payment-form {
+  min-height: 0;
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+  overflow: visible;
+}
+
+.caja-credit-grid {
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.caja-quick-pay .caja-credit-grid {
+  grid-template-columns: 1fr;
+  align-content: start;
+}
+
+.caja-selected-credit {
+  min-height: 100%;
+}
+
+.caja-quick-pay .caja-selected-credit {
+  display: none;
+}
+
+.caja-credit-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.caja-credit-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caja-plan-preview {
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.caja-quick-pay .caja-plan-preview {
+  display: none;
+}
+
+.caja-payment-form {
+  align-content: start;
+}
+
+.caja-quick-pay .caja-payment-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caja-payment-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caja-quick-section {
+  min-height: 0;
+}
+
+.caja-allocation-section,
+.caja-quick-pay .caja-inline-actions {
+  grid-column: 1 / -1;
+}
+
+.caja-allocation-preview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.allocation-row {
+  min-height: 74px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-soft);
+}
+
+.allocation-row span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.allocation-row strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+.caja-payment-form .caja-inline-actions {
+  position: static;
+  justify-content: flex-end;
+  padding: 0;
+  background: transparent;
+}
+
+.caja-payment-form .form-section {
+  padding: 8px;
+}
+
+.caja-payment-form .form-grid {
+  gap: 6px;
+}
+
+.caja-notification-panel {
+  background: rgba(31, 208, 188, 0.06);
+}
+
+.caja-payment-notice[hidden] + .caja-auto-note {
+  display: block;
+}
+
+.caja-auto-note {
+  min-height: 42px;
+  border: 1px solid rgba(31, 208, 188, 0.22);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text);
+  background: rgba(31, 208, 188, 0.08);
+  font-weight: 700;
+}
+
+body.caja-page .ops-shell {
+  height: 100dvh;
+  padding: 4px;
+  gap: 6px;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+body.caja-page [hidden] {
+  display: none !important;
+}
+
+body.caja-page .ops-topbar {
+  min-height: 50px;
+  padding: 6px 10px;
+}
+
+body.caja-page .title-block h1 {
+  font-size: 1.45rem;
+}
+
+body.caja-page .ghost-button,
+body.caja-page .primary-button,
+body.caja-page .danger-button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+}
+
+body.caja-page .session-chip {
+  min-height: 42px;
+}
+
+body.caja-page .caja-board {
+  min-height: 0;
+  height: calc(100dvh - 84px);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 6px;
+  overflow: hidden;
+}
+
+body.caja-page .caja-command-strip {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+body.caja-page .caja-session-card {
+  grid-template-columns: minmax(120px, 0.22fr) minmax(0, 1fr) minmax(300px, 0.42fr);
+  padding: 6px 10px;
+}
+
+body.caja-page .caja-session-card .detail-item {
+  min-height: 34px;
+  padding: 4px 8px;
+}
+
+body.caja-page .caja-session-card .toolbar-actions button {
+  min-height: 32px;
+  flex: 1 1 86px;
+}
+
+body.caja-page .caja-metric-strip {
+  display: none;
+}
+
+body.caja-page .caja-tabs {
+  min-height: 44px;
+  padding: 6px;
+}
+
+body.caja-page .caja-tab {
+  min-height: 34px;
+}
+
+body.caja-page .caja-quick-pay {
+  grid-template-columns: minmax(330px, 420px) minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.caja-page .caja-credit-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+body.caja-page .caja-payment-panel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+body.caja-page .caja-credit-grid {
+  padding: 10px;
+  overflow: auto;
+}
+
+body.caja-page .caja-payment-form {
+  padding: 8px 10px;
+  overflow: auto;
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 8px;
+}
+
+body.caja-page .caja-payment-form .form-section {
+  padding: 8px 10px;
+}
+
+body.caja-page .caja-payment-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.caja-page .caja-pay-now-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+body.caja-page .caja-pay-now-row .primary-button {
+  width: min(100%, 320px);
+}
+
+body.caja-page .caja-loan-strip {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+body.caja-page .caja-loan-strip .caja-credit-title {
+  margin-bottom: 6px;
+}
+
+body.caja-page .caja-loan-strip h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+body.caja-page .caja-credit-detail-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body.caja-page .caja-loan-strip .detail-item {
+  min-height: 42px;
+  padding: 7px 9px;
+}
+
+body.caja-page .caja-loan-strip .detail-item strong {
+  font-size: 0.92rem;
+  line-height: 1.18;
+}
+
+body.caja-page .caja-allocation-section {
+  grid-column: 1 / -1;
+}
+
+body.caja-page .caja-allocation-preview {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+body.caja-page .allocation-row {
+  min-height: 62px;
+  padding: 9px 10px;
+}
+
+body.caja-page .allocation-row strong {
+  font-size: 0.98rem;
+}
+
+body.caja-page .caja-payment-form .caja-inline-actions {
+  display: none;
+}
+
+body.caja-page .caja-teller-panel .form-section {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+body.caja-page .caja-payment-receive .caja-payment-grid {
+  grid-template-columns: minmax(120px, 0.8fr) minmax(120px, 0.6fr) minmax(140px, 0.7fr) minmax(180px, 1fr) minmax(120px, 0.7fr) minmax(120px, 0.7fr) auto;
+  align-items: end;
+}
+
+body.caja-page .caja-payer-section .caja-payment-grid {
+  grid-template-columns: minmax(160px, 0.75fr) minmax(260px, 1.25fr) minmax(150px, 0.7fr) minmax(220px, 1fr);
+  align-items: end;
+}
+
+.caja-payer-hint {
+  grid-column: 1 / -1;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(31, 208, 188, 0.2);
+  border-radius: 8px;
+  padding: 5px 8px;
+  background: rgba(31, 208, 188, 0.06);
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.caja-payer-hint[data-kind="ok"] {
+  border-color: rgba(142, 232, 135, 0.35);
+  color: var(--green);
+}
+
+.caja-payer-hint[data-kind="warn"] {
+  border-color: rgba(244, 190, 99, 0.36);
+  color: var(--gold);
+}
+
+body.caja-page .caja-payment-head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+body.caja-page .credit-results {
+  max-height: min(44dvh, 360px);
+  overflow: auto;
+}
+
+body.caja-page .caja-teller-shell {
+  min-height: 0;
+  height: 100%;
+  grid-template-columns: minmax(330px, 390px) minmax(0, 1fr);
+  gap: 8px;
+  overflow: hidden;
+}
+
+body.caja-page .caja-teller-side,
+body.caja-page .caja-teller-main {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  gap: 8px;
+  overflow: hidden;
+}
+
+body.caja-page .caja-teller-side {
+  grid-template-rows: minmax(150px, 0.62fr) minmax(420px, 1fr);
+}
+
+body.caja-page .caja-teller-main {
+  grid-template-rows: minmax(220px, 0.9fr) minmax(190px, 0.72fr) minmax(160px, 0.5fr);
+}
+
+body.caja-page .caja-search-panel,
+body.caja-page .caja-payment-capture,
+body.caja-page .caja-credit-summary-panel,
+body.caja-page .caja-application-panel,
+body.caja-page .caja-confirm-panel {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+body.caja-page .caja-confirm-panel {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+body.caja-page .caja-search-body,
+body.caja-page .caja-capture-body,
+body.caja-page .caja-application-body {
+  min-height: 0;
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  overflow: auto;
+}
+
+body.caja-page .caja-search-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(92px, 0.26fr);
+  align-items: end;
+}
+
+body.caja-page .credit-result-button {
+  width: 100%;
+  text-align: left;
+}
+
+body.caja-page .caja-capture-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.caja-page .caja-amount-field input {
+  min-height: 54px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--text);
+}
+
+body.caja-page .field.is-required span::after {
+  content: " *";
+  color: var(--danger);
+}
+
+body.caja-page .toggle-line {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--panel-soft);
+  color: var(--text);
+  font-weight: 900;
+}
+
+body.caja-page .toggle-line input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+
+body.caja-page .caja-payer-drawer {
+  border: 1px solid rgba(31, 208, 188, 0.18);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(31, 208, 188, 0.06);
+}
+
+body.caja-page .caja-payer-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.caja-page .audit-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  border: 1px solid rgba(84, 164, 255, 0.22);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(84, 164, 255, 0.08);
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+body.caja-page .audit-strip strong {
+  color: var(--text);
+}
+
+body.caja-page .caja-credit-summary-panel .caja-loan-strip {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 0;
+  overflow: auto;
+}
+
+body.caja-page .caja-credit-summary-panel .caja-plan-preview {
+  display: none;
+}
+
+body.caja-page .caja-credit-summary-panel .caja-credit-detail-grid {
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+}
+
+body.caja-page .debt-ribbon {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(125px, 1fr));
+  gap: 8px;
+}
+
+body.caja-page .debt-ribbon article,
+body.caja-page .payment-result-strip article {
+  min-width: 0;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel-soft);
+}
+
+body.caja-page .debt-ribbon span,
+body.caja-page .payment-result-strip span {
+  display: block;
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+body.caja-page .debt-ribbon strong,
+body.caja-page .payment-result-strip strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 1.06rem;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+body.caja-page .debt-ribbon .is-strong {
+  border-color: rgba(31, 208, 188, 0.32);
+  background: rgba(31, 208, 188, 0.12);
+}
+
+body.caja-page .debt-ribbon .is-strong strong {
+  color: var(--accent);
+}
+
+body.caja-page .debt-ribbon .is-danger strong {
+  color: var(--danger);
+}
+
+body.caja-page .auto-apply-table {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body.caja-page .allocation-empty {
+  grid-column: 1 / -1;
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--stroke);
+  border-radius: 8px;
+  color: var(--text-soft);
+  background: var(--panel-soft);
+  font-weight: 900;
+}
+
+body.caja-page .auto-apply-table .allocation-row {
+  min-height: 66px;
+  display: grid;
+  align-content: start;
+}
+
+body.caja-page .allocation-row em {
+  display: block;
+  margin-top: 8px;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+body.caja-page .payment-result-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  border: 1px solid rgba(142, 232, 135, 0.2);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(142, 232, 135, 0.07);
+}
+
+body.caja-page .payment-result-strip:empty {
+  display: none;
+}
+
+body.caja-page .confirm-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.36fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+body.caja-page .confirm-list,
+body.caja-page .receipt-preview {
+  min-height: 74px;
+  display: grid;
+  align-content: start;
+  gap: 5px 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--panel-soft);
+  overflow: auto;
+}
+
+body.caja-page .confirm-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.caja-page .confirm-list span,
+body.caja-page .receipt-preview span,
+body.caja-page .receipt-preview em {
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  line-height: 1.16;
+  font-style: normal;
+  font-weight: 800;
+}
+
+body.caja-page .confirm-list strong,
+body.caja-page .receipt-preview strong {
+  color: var(--text);
+}
+
+body.caja-page .caja-confirm-actions {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(120px, 0.7fr) minmax(160px, 1fr) minmax(200px, 1.25fr) minmax(120px, 0.7fr);
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--stroke);
+  background: transparent;
+}
+
+body.caja-page .caja-confirm-actions button {
+  min-height: 30px;
+}
+
+body.caja-page .status-pill.status-warn {
+  border-color: rgba(244, 190, 99, 0.38);
+  background: rgba(244, 190, 99, 0.14);
+  color: var(--gold);
+}
+
+@media (max-height: 820px) {
+  body.caja-page .ops-topbar {
+    min-height: 44px;
+    padding: 5px 8px;
+  }
+
+  body.caja-page .title-block h1 {
+    font-size: 1.25rem;
+  }
+
+  body.caja-page .session-chip {
+    min-height: 36px;
+  }
+
+  body.caja-page .caja-board {
+    min-height: auto;
+    grid-template-rows: auto auto auto;
+  }
+
+  body.caja-page .caja-session-card {
+    grid-template-columns: minmax(110px, 0.22fr) minmax(0, 1fr) minmax(260px, 0.4fr);
+  }
+
+  body.caja-page .caja-session-card .detail-item {
+    min-height: 30px;
+  }
+
+  body.caja-page .caja-credit-panel,
+  body.caja-page .caja-payment-panel {
+    grid-template-rows: auto auto;
+  }
+
+  body.caja-page .caja-payment-form {
+    grid-template-columns: 1fr;
+  }
+
+  body.caja-page .caja-loan-strip .detail-item {
+    min-height: 36px;
+  }
+
+  body.caja-page .allocation-row {
+    min-height: 54px;
+  }
+}
+
+@media (max-width: 1366px) {
+  body.caja-page .caja-board {
+    grid-template-rows: auto auto auto;
+  }
+
+  body.caja-page .caja-session-card {
+    grid-template-columns: 1fr;
+  }
+
+  body.caja-page .caja-session-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.caja-page .caja-quick-pay {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  body.caja-page .caja-payment-form {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  body.caja-page .caja-allocation-preview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.caja-page .caja-payment-receive .caja-payment-grid,
+  body.caja-page .caja-payer-section .caja-payment-grid,
+  body.caja-page .caja-payment-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.caja-page .caja-pay-now-row {
+    justify-content: stretch;
+  }
+
+  body.caja-page .caja-pay-now-row .primary-button {
+    width: 100%;
+  }
+
+  body.caja-page .caja-teller-shell {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  body.caja-page .caja-teller-side,
+  body.caja-page .caja-teller-main {
+    overflow: visible;
+  }
+
+  body.caja-page .caja-teller-side {
+    grid-template-rows: auto;
+  }
+
+  body.caja-page .caja-credit-summary-panel .caja-credit-detail-grid,
+  body.caja-page .debt-ribbon {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1500px), (max-height: 820px) {
+  body.caja-page .caja-quick-pay {
+    grid-template-columns: 1fr;
+  }
+
+  body.caja-page .caja-credit-panel,
+  body.caja-page .caja-payment-panel {
+    overflow: visible;
+  }
+
+  body.caja-page .caja-credit-grid,
+  body.caja-page .caja-payment-form {
+    overflow: visible;
+  }
+
+  body.caja-page .caja-payment-form {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  body.caja-page .caja-quick-pay {
+    grid-template-columns: 1fr;
+  }
+
+  body.caja-page .caja-payment-grid,
+  body.caja-page .caja-credit-detail-grid,
+  body.caja-page .caja-allocation-preview,
+  body.caja-page .caja-count-summary {
+    grid-template-columns: 1fr;
+  }
+
+  body.caja-page .caja-search-grid,
+  body.caja-page .caja-capture-grid,
+  body.caja-page .caja-payer-grid,
+  body.caja-page .audit-strip,
+  body.caja-page .caja-credit-summary-panel .caja-credit-detail-grid,
+  body.caja-page .debt-ribbon,
+  body.caja-page .auto-apply-table,
+  body.caja-page .payment-result-strip,
+  body.caja-page .confirm-grid,
+  body.caja-page .caja-confirm-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.caja-receipts-panel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.caja-receipts-panel .table-wrap {
+  min-height: 0;
+}
+
+.caja-arqueo-panel {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+/* Caja segunda pasada: estacion transaccional compacta, no dashboard. */
+body.caja-page .cash-product-sidebar {
+  width: 188px;
+}
+
+body.caja-page .cash-nav a {
+  min-height: 34px;
+  padding-block: 7px;
+}
+
+body.caja-page .caja-board {
+  gap: 7px;
+}
+
+body.caja-page .caja-command-strip {
+  display: block;
+}
+
+body.caja-page .caja-session-card {
+  min-height: 0;
+  grid-template-columns: minmax(120px, 0.2fr) minmax(0, 1fr) minmax(260px, 0.34fr);
+  align-items: center;
+}
+
+body.caja-page .caja-session-card .panel-head,
+body.caja-page .caja-search-panel .panel-head,
+body.caja-page .caja-payment-capture .panel-head,
+body.caja-page .caja-credit-summary-panel .panel-head,
+body.caja-page .caja-application-panel .panel-head,
+body.caja-page .caja-confirm-panel .panel-head {
+  min-height: 44px;
+  padding-block: 8px;
+}
+
+body.caja-page .cash-stepper {
+  min-height: 40px;
+  padding: 5px;
+  gap: 5px;
+}
+
+body.caja-page .cash-stepper span {
+  min-height: 28px;
+  padding: 5px 9px;
+  font-size: 0.75rem;
+}
+
+body.caja-page .caja-search-body,
+body.caja-page .caja-capture-body,
+body.caja-page .caja-application-body,
+body.caja-page .confirm-grid {
+  padding: 8px;
+  gap: 8px;
+}
+
+body.caja-page .caja-teller-shell {
+  grid-template-columns: minmax(300px, 350px) minmax(0, 1fr);
+  gap: 8px;
+}
+
+body.caja-page .caja-teller-side {
+  grid-template-rows: minmax(118px, 0.44fr) minmax(360px, 1fr);
+}
+
+body.caja-page .caja-teller-main {
+  grid-template-rows: minmax(172px, 0.62fr) minmax(158px, 0.56fr) minmax(128px, 0.42fr);
+}
+
+body.caja-page .caja-credit-summary-panel .caja-loan-strip {
+  padding: 8px;
+}
+
+body.caja-page .debt-ribbon article,
+body.caja-page .payment-result-strip article,
+body.caja-page .auto-apply-table .allocation-row,
+body.caja-page .confirm-list,
+body.caja-page .receipt-preview {
+  min-height: 58px;
+  padding: 8px;
+}
+
+body.caja-page .caja-confirm-actions {
+  padding: 8px;
+}
+
+@media (max-width: 1366px) {
+  body.caja-page .cash-product-sidebar {
+    width: 168px;
+  }
+
+  body.caja-page .caja-teller-shell {
+    grid-template-columns: minmax(285px, 330px) minmax(0, 1fr);
+  }
+
+  body.caja-page .caja-session-card {
+    grid-template-columns: minmax(110px, 0.2fr) minmax(0, 1fr);
+  }
+
+  body.caja-page .caja-session-card .toolbar-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+.caja-arqueo-grid {
+  min-height: 0;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: minmax(360px, 0.75fr) minmax(0, 1fr);
+  gap: 10px;
+  overflow: auto;
+}
+
+.caja-view-panel:not(.is-active) {
+  display: none !important;
+}
+
+.caja-cash-form {
+  grid-template-columns: minmax(420px, 0.8fr) minmax(520px, 1fr) minmax(360px, 0.7fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.modal-wide .caja-cash-form {
+  grid-template-columns: minmax(420px, 0.8fr) minmax(520px, 1fr) minmax(360px, 0.7fr);
+}
+
+.caja-cash-data-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caja-denomination-section {
+  min-height: 0;
+}
+
+.caja-denomination-section .denomination-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.caja-cash-form .form-message,
+.caja-cash-form .modal-actions {
+  grid-column: 1 / -1;
+}
+
+.loan-detail-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--panel);
+}
+
+.loan-detail-head,
+.loan-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.loan-detail-head h3,
+.loan-subsection h4 {
+  margin: 0;
+  color: var(--text);
+}
+
+.loan-actions {
+  justify-content: flex-end;
+}
+
+.loan-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.loan-subsection,
+.loan-table-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  padding: 10px;
+}
+
+.loan-tables {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.loan-table-card > strong {
+  color: var(--text);
+}
+
+.loan-table-card .mini-table {
+  max-height: 240px;
+  background: var(--panel);
+}
+
+@media (max-width: 1600px), (max-height: 820px) {
+  .cartera-page .ops-topbar {
+    min-height: 48px;
+    padding: 6px 10px;
+  }
+
+  .cartera-page .title-block h1 {
+    font-size: 1.35rem;
+  }
+
+  .cartera-page .ghost-button,
+  .cartera-page .primary-button,
+  .cartera-page .danger-button {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 0.9rem;
+  }
+
+  .cartera-page .session-chip {
+    min-height: 38px;
+  }
+
+  .cartera-page .ops-layout {
+    gap: 6px;
+  }
+
+  .cartera-page .ops-sidebar {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .cartera-page .ops-sidebar > .toolbar-card {
+    grid-template-columns: minmax(220px, 1.2fr) repeat(3, minmax(120px, 0.55fr)) minmax(330px, 0.85fr);
+    padding: 7px;
+  }
+
+  .cartera-page .metric-stack {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .cartera-page .metric-card {
+    min-height: 48px;
+    padding: 7px 8px;
+  }
+
+  .cartera-page .ops-main:not(.detail-collapsed) {
+    grid-template-columns: minmax(0, 1fr) minmax(390px, 470px);
+  }
+
+  .cartera-workstack {
+    grid-template-rows: auto minmax(260px, 1fr) minmax(160px, 0.42fr);
+    gap: 6px;
+  }
+
+  .cartera-mode-card {
+    min-height: 44px;
+    padding: 8px 10px;
+  }
+
+  .cartera-mode-card small {
+    display: none;
+  }
+
+  .cartera-mode-card strong {
+    font-size: 1rem;
+  }
+
+  .cartera-recovery-toolbar {
+    grid-template-columns: minmax(160px, 1fr) auto;
+  }
+
+  .cartera-page .detail-panel {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .cartera-page .detail-item {
+    min-height: 44px;
+    padding: 7px 8px;
+  }
+}
+
+@media (max-width: 1320px) {
+  .cartera-page .ops-sidebar > .toolbar-card {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .cartera-page .ops-sidebar > .toolbar-card .toolbar-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .cartera-page .metric-stack {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cartera-page .ops-main,
+  .cartera-page .ops-main:not(.detail-collapsed) {
+    grid-template-columns: 1fr;
+  }
+
+  .cartera-workstack {
+    grid-template-rows: auto minmax(360px, 1fr) auto;
+  }
+
+  .cartera-page .detail-panel {
+    max-height: none;
+  }
+
+  .mora-bucket-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cartera-page .detail-panel.is-collapsed {
+    min-height: 52px;
+  }
+
+  .cartera-page .detail-panel.is-collapsed::after {
+    writing-mode: initial;
+  }
+}
+
+@media (max-width: 1180px) {
+  .ops-layout,
+  .ops-main,
+  .cartera-page .ops-main,
+  .cartera-page .ops-main:not(.detail-collapsed) {
+    grid-template-columns: 1fr;
+  }
+
+  .cartera-workstack {
+    grid-template-rows: auto auto auto;
+    overflow: visible;
+  }
+
+  .clientes-page .ops-layout,
+  .clientes-page .ops-sidebar,
+  .clientes-page .toolbar-card {
+    grid-template-columns: 1fr;
+  }
+
+  .clientes-page .toolbar-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .simulator-kpi-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ops-layout {
+    height: auto;
+    overflow: visible;
+  }
+
+  .ops-sidebar {
+    grid-template-columns: 1.2fr 1fr;
+  }
+
+  .modal-wide .ops-form {
+    grid-template-columns: 1fr;
+  }
+
+  .caja-board {
+    height: auto;
+    overflow: visible;
+    grid-template-rows: auto;
+  }
+
+  .caja-command-strip,
+  .caja-workspace,
+  .caja-credit-grid,
+  .caja-session-card,
+  .caja-summary-card,
+  .modal-wide .caja-cash-form,
+  .regulatory-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .prospection-split {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-stack {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .loan-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .regulatory-totals {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .ops-shell {
+    width: min(100% - 12px, 1760px);
+    padding: 8px 0;
+  }
+
+  .cartera-page .ops-shell {
+    width: 100%;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    padding: 6px;
+  }
+
+  .cartera-page .ops-layout {
+    overflow: visible;
+  }
+
+  .cartera-page .ops-sidebar > .toolbar-card,
+  .cartera-page .metric-stack,
+  .cartera-page .detail-actions,
+  .cartera-mode-board,
+  .mora-bucket-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cartera-page .detail-actions .danger-button,
+  .cartera-page .detail-actions #refreshDetailButton {
+    grid-column: auto;
+  }
+
+  .ops-sidebar,
+  .form-grid,
+  .check-grid,
+  .plan-summary,
+  .metric-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .regulatory-totals {
+    grid-template-columns: 1fr;
+  }
+
+  .loan-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+body.contabilidad-page .ops-shell {
+  min-height: 100vh;
+  width: 100%;
+  max-width: none;
+  padding: 10px;
+  overflow-x: hidden;
+}
+
+body.contabilidad-page .ops-topbar {
+  margin-bottom: 8px;
+}
+
+.accounting-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.accounting-summary-grid .metric-card {
+  min-height: 88px;
+}
+
+.accounting-tabs {
+  margin-bottom: 8px;
+}
+
+.accounting-panel {
+  display: none;
+}
+
+.accounting-panel.is-active {
+  display: block;
+}
+
+.accounting-catalog-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.42fr);
+  gap: 8px;
+  min-height: 0;
+}
+
+.accounting-list-panel,
+.accounting-form-panel {
+  min-width: 0;
+}
+
+.accounting-filter-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.35fr) minmax(150px, 0.7fr) minmax(130px, 0.55fr) auto auto auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 8px;
+}
+
+.accounting-filter-row .field-grow {
+  min-width: min(100%, 320px);
+}
+
+.inline-check {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.inline-check input {
+  width: 18px;
+  height: 18px;
+}
+
+.accounting-table-wrap {
+  max-height: calc(100vh - 335px);
+}
+
+.accounting-form .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.accounting-form .field-wide {
+  grid-column: 1 / -1;
+}
+
+.accounting-actions {
+  position: static;
+  padding-top: 8px;
+}
+
+.accounting-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.45fr);
+  gap: 8px;
+  min-height: 0;
+}
+
+.accounting-entry-detail {
+  position: static;
+  width: auto;
+  min-width: 0;
+  max-height: calc(100vh - 310px);
+  overflow: auto;
+}
+
+.accounting-report-wrap {
+  max-height: calc(100vh - 330px);
+}
+
+.report-heading {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.status-pill.is-danger,
+.metric-card strong.is-danger {
+  color: var(--danger);
+}
+
+/* Caja: overrides finales para evitar que reglas responsive antiguas apilen y recorten la vista. */
+@media (min-width: 900px) {
+  body.caja-page {
+    overflow: hidden;
+  }
+
+  body.caja-page .ops-shell {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body.caja-page .caja-board {
+    height: calc(100dvh - 84px);
+    min-height: 0;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  body.caja-page .caja-command-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.caja-page .caja-session-card {
+    grid-template-columns: minmax(170px, 0.22fr) minmax(0, 1fr) minmax(330px, 0.36fr);
+    align-items: center;
+  }
+
+  body.caja-page .caja-session-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.caja-page .caja-teller-shell.is-active {
+    display: grid;
+    grid-template-columns: clamp(300px, 28vw, 380px) minmax(0, 1fr);
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.caja-page .caja-teller-side {
+    grid-template-rows: minmax(138px, 0.52fr) minmax(330px, 1fr);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.caja-page .caja-teller-main {
+    grid-template-rows: minmax(168px, 0.62fr) minmax(188px, 0.74fr) minmax(178px, 0.64fr);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.caja-page .caja-search-panel,
+  body.caja-page .caja-payment-capture,
+  body.caja-page .caja-credit-summary-panel,
+  body.caja-page .caja-application-panel,
+  body.caja-page .caja-confirm-panel {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.caja-page .caja-search-body,
+  body.caja-page .caja-capture-body,
+  body.caja-page .caja-application-body,
+  body.caja-page .caja-credit-summary-panel .caja-loan-strip {
+    min-height: 0;
+    overflow: auto;
+  }
+
+  body.caja-page .caja-application-body {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  body.caja-page .auto-apply-table {
+    gap: 6px;
+  }
+
+  body.caja-page .auto-apply-table .allocation-row {
+    min-height: 58px;
+    padding: 6px 8px;
+  }
+
+  body.caja-page .allocation-row strong {
+    margin-top: 4px;
+    font-size: 0.9rem;
+  }
+
+  body.caja-page .allocation-row em {
+    margin-top: 4px;
+    font-size: 0.72rem;
+  }
+
+  body.caja-page .payment-result-strip {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  body.caja-page .payment-result-strip article {
+    min-height: 48px;
+    padding: 6px 8px;
+  }
+
+  body.caja-page .payment-result-strip strong {
+    margin-top: 4px;
+    font-size: 0.92rem;
+  }
+
+  body.caja-page .caja-auto-note {
+    min-height: 32px;
+    padding: 7px 9px;
+    font-size: 0.82rem;
+  }
+
+  body.caja-page .caja-credit-summary-panel .caja-credit-detail-grid,
+  body.caja-page .debt-ribbon {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  body.caja-page .caja-credit-summary-panel .caja-loan-strip {
+    gap: 6px;
+    align-content: start;
+  }
+
+  body.caja-page .caja-credit-summary-panel .detail-item,
+  body.caja-page .debt-ribbon article {
+    min-height: 48px;
+    padding: 6px 8px;
+  }
+
+  body.caja-page .caja-credit-summary-panel .detail-item strong,
+  body.caja-page .debt-ribbon strong {
+    margin-top: 4px;
+    font-size: 0.94rem;
+    line-height: 1.12;
+  }
+
+  body.caja-page .auto-apply-table,
+  body.caja-page .payment-result-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  body.caja-page .confirm-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.34fr);
+    padding: 8px 10px;
+  }
+
+  body.caja-page .caja-confirm-actions {
+    grid-template-columns: minmax(120px, 0.7fr) minmax(160px, 1fr) minmax(200px, 1.25fr) minmax(120px, 0.7fr);
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 899px) {
+  body.caja-page,
+  body.caja-page .ops-shell,
+  body.caja-page .caja-board,
+  body.caja-page .caja-teller-shell,
+  body.caja-page .caja-teller-side,
+  body.caja-page .caja-teller-main,
+  body.caja-page .caja-search-panel,
+  body.caja-page .caja-payment-capture,
+  body.caja-page .caja-credit-summary-panel,
+  body.caja-page .caja-application-panel,
+  body.caja-page .caja-confirm-panel,
+  body.caja-page .caja-search-body,
+  body.caja-page .caja-capture-body,
+  body.caja-page .caja-application-body,
+  body.caja-page .caja-credit-summary-panel .caja-loan-strip {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  body.caja-page .caja-board,
+  body.caja-page .caja-teller-shell,
+  body.caja-page .caja-teller-side,
+  body.caja-page .caja-teller-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
+.form-message.is-info {
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel-soft));
+}
+
+@media (max-width: 1400px) {
+  .accounting-catalog-grid,
+  .accounting-split {
+    grid-template-columns: 1fr;
+  }
+
+  .accounting-table-wrap,
+  .accounting-entry-detail,
+  .accounting-report-wrap {
+    max-height: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .accounting-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .accounting-filter-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  body.contabilidad-page .ops-shell {
+    padding: 6px;
+  }
+
+  .accounting-summary-grid,
+  .accounting-filter-row,
+  .accounting-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-check {
+    width: 100%;
+  }
+}

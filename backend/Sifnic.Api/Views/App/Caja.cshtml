@@ -1,0 +1,435 @@
+@{
+    ViewData["Title"] = "Caja";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Caja</title>
+    <meta name="description" content="Estacion transaccional de caja SIFNIC." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/creditos/assets/css/creditos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body class="caja-page fin-page cash-station-page">
+    <main class="cash-station-shell">
+      <header class="cash-station-header" aria-label="Encabezado de caja">
+        <div class="cash-header-left">
+          <button class="ghost-button" id="backToDashboard" type="button">Volver al panel</button>
+          <div class="title-block">
+            <span class="eyebrow">Tesoreria</span>
+            <h1>Caja</h1>
+            <p>Aplicacion de pagos, desembolsos, vouchers y arqueo operativo.</p>
+          </div>
+        </div>
+        <div class="cash-header-right">
+          <button class="ghost-button theme-toggle-header" id="themeToggle" type="button" aria-pressed="false">
+            <span id="themeToggleLabel">Modo oscuro</span>
+          </button>
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+          <button class="ghost-button" id="closeSession" type="button">Cerrar sesion</button>
+        </div>
+      </header>
+
+      <section class="cash-session-strip" aria-label="Sesion de caja">
+        <article class="cash-session-status">
+          <span class="eyebrow">Sesion de caja</span>
+          <strong id="cashSessionTitle">Sin apertura</strong>
+          <div id="cashSessionBody" class="cash-session-meta"></div>
+        </article>
+        <article class="cash-balance-tile">
+          <span>Teorico NIO</span>
+          <strong id="metricNio">0.00</strong>
+        </article>
+        <article class="cash-balance-tile">
+          <span>Teorico USD</span>
+          <strong id="metricUsd">0.00</strong>
+        </article>
+        <article class="cash-balance-tile">
+          <span>Ingresos</span>
+          <strong id="metricIncome">0.00</strong>
+        </article>
+        <div class="cash-session-actions">
+          <button class="primary-button" id="openCashButton" type="button">Abrir caja</button>
+          <button class="danger-button" id="closeCashButton" type="button">Cerrar caja</button>
+          <button class="ghost-button" id="cashReportButton" type="button">Hoja arqueo</button>
+        </div>
+      </section>
+
+      <nav class="cash-operation-tabs" aria-label="Operaciones de caja">
+        <button class="caja-tab is-active" type="button" data-caja-view="abono">Aplicar pago</button>
+        <button class="caja-tab" type="button" data-caja-view="desembolso">Desembolsos</button>
+        <button class="caja-tab" type="button" data-caja-view="vouchers">Reimpresion voucher</button>
+        <button class="caja-tab" type="button" data-caja-view="arqueo">Arqueo</button>
+      </nav>
+
+      <section class="cash-workspace">
+        <section class="caja-view-panel caja-teller-shell cash-payment-workflow is-active" data-caja-panel="abono">
+          <nav class="cash-stepper" id="cashStepper" aria-label="Flujo de abono">
+            <span class="is-active" data-step="search">1. Buscar</span>
+            <span data-step="select">2. Seleccionar</span>
+            <span data-step="capture">3. Capturar</span>
+            <span data-step="validate">4. Validar</span>
+            <span data-step="confirm">5. Confirmar</span>
+            <span data-step="receipt">6. Comprobante</span>
+          </nav>
+
+          <section class="cash-payment-grid">
+            <aside class="cash-left-rail">
+              <section class="cash-panel cash-search-panel" data-flow-step="search">
+                <div class="cash-panel-head">
+                  <div>
+                    <span class="eyebrow">Paso 1</span>
+                    <h2>Buscar credito</h2>
+                  </div>
+                  <span class="counter-pill" id="selectedCreditStatus">Sin prestamo</span>
+                </div>
+                <div class="cash-search-row">
+                  <label class="field">
+                    <span>Credito, cedula, nombre o telefono</span>
+                    <input id="creditSearchInput" type="search" placeholder="Escribi y presiona Enter" autocomplete="off" />
+                  </label>
+                  <button class="primary-button" id="searchCreditButton" type="button">Buscar</button>
+                </div>
+                <div class="credit-results cash-credit-results" id="creditResults"></div>
+              </section>
+
+              <form id="paymentForm" class="cash-panel cash-payment-capture" data-flow-step="capture">
+                <div class="cash-panel-head">
+                  <div>
+                    <span class="eyebrow">Paso 3</span>
+                    <h2>Capturar pago</h2>
+                  </div>
+                  <span class="counter-pill" id="paymentCurrencyHint">TC vigente</span>
+                </div>
+
+                <label class="field cash-amount-field">
+                  <span>Monto recibido</span>
+                  <input id="paymentAmount" type="number" min="0.01" step="0.01" inputmode="decimal" />
+                </label>
+
+                <div class="cash-form-grid">
+                  <label class="field"><span>Moneda</span><select id="paymentCurrency"></select></label>
+                  <label class="field"><span>Forma</span><select id="paymentMethod"></select></label>
+                  <label class="field"><span>Referencia</span><input id="manualReceipt" maxlength="100" placeholder="Solo si aplica" /></label>
+                  <label class="field"><span>TC institucional</span><input id="paymentExchangeRate" type="number" min="0" step="0.0001" readonly /></label>
+                  <label class="field field-wide"><span>Aplicado al credito</span><input id="paymentAppliedAmount" type="text" readonly /></label>
+                </div>
+
+                <label class="toggle-line cash-toggle-line">
+                  <input id="payerDifferentToggle" type="checkbox" />
+                  <span>Pagador distinto al titular</span>
+                </label>
+
+                <div class="cash-payer-drawer" id="payerDrawer" hidden>
+                  <div class="cash-form-grid">
+                    <label class="field"><span>Cedula</span><input id="payerIdentification" maxlength="100" autocomplete="off" /></label>
+                    <label class="field"><span>Abonante</span><input id="payerName" maxlength="500" /></label>
+                    <label class="field"><span>Telefono</span><input id="payerPhone" maxlength="100" /></label>
+                    <label class="field field-wide"><span>Observacion</span><input id="paymentObservation" maxlength="1000" /></label>
+                  </div>
+                  <div class="cash-hint" id="payerLookupHint">Digite la cedula para completar datos conocidos.</div>
+                </div>
+
+                <section class="audit-strip cash-audit-strip" id="paymentAuditStrip">
+                  <span>Sucursal: -</span>
+                  <span>Caja: -</span>
+                  <span>Cajero: -</span>
+                  <span>Fecha: -</span>
+                </section>
+                <div class="form-message" id="paymentMessage" hidden></div>
+              </form>
+            </aside>
+
+            <section class="cash-main-column">
+              <section class="cash-panel cash-credit-summary-panel" data-flow-step="select">
+                <div class="cash-panel-head">
+                  <div>
+                    <span class="eyebrow">Credito seleccionado</span>
+                    <h2 id="creditFocusTitle">Selecciona un prestamo</h2>
+                  </div>
+                  <span class="status-pill" id="creditFocusMeta">Sin datos</span>
+                </div>
+                <div class="cash-credit-grid" id="creditBalanceGrid">
+                  <article class="detail-item"><span>Cliente</span><strong>-</strong></article>
+                  <article class="detail-item"><span>Credito</span><strong>-</strong></article>
+                  <article class="detail-item"><span>Estado</span><strong>-</strong></article>
+                  <article class="detail-item"><span>Moneda</span><strong>-</strong></article>
+                  <article class="detail-item"><span>Proximo vencimiento</span><strong>-</strong></article>
+                  <article class="detail-item"><span>Dias mora</span><strong>-</strong></article>
+                </div>
+                <div class="debt-ribbon cash-debt-ribbon" id="debtRibbon">
+                  <article><span>Cuota vencida</span><strong>NIO 0.00</strong></article>
+                  <article><span>Cuota del dia</span><strong>NIO 0.00</strong></article>
+                  <article><span>Mora pendiente</span><strong>NIO 0.00</strong></article>
+                  <article><span>Interes pendiente</span><strong>NIO 0.00</strong></article>
+                  <article><span>Capital pendiente</span><strong>NIO 0.00</strong></article>
+                  <article class="is-strong"><span>Total exigible</span><strong>NIO 0.00</strong></article>
+                </div>
+                <div class="mini-table cash-plan-preview" id="creditPlanPreview" hidden>
+                  <table>
+                    <thead><tr><th>Rubro</th><th>Monto</th></tr></thead>
+                    <tbody><tr><td colspan="2">Selecciona un credito para ver la distribucion.</td></tr></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="cash-panel cash-application-panel" data-flow-step="validate">
+                <div class="cash-panel-head">
+                  <div>
+                    <span class="eyebrow">Paso 4</span>
+                    <h2>Aplicacion automatica</h2>
+                  </div>
+                  <span class="status-pill status-ok">Calculado por sistema</span>
+                </div>
+                <div class="auto-apply-table cash-apply-list" id="paymentAllocationPreview">
+                  <div class="allocation-empty">Selecciona un credito para calcular la aplicacion.</div>
+                </div>
+                <div class="payment-result-strip cash-result-strip" id="paymentResultStrip"></div>
+                <div class="cash-hint" id="paymentAutoNote">Abonos parciales: primero intereses, luego mora, cargos y de ultimo capital.</div>
+              </section>
+
+              <section class="cash-panel cash-confirm-panel" data-flow-step="confirm">
+                <div class="cash-panel-head">
+                  <div>
+                    <span class="eyebrow">Paso 5</span>
+                    <h2>Confirmacion</h2>
+                  </div>
+                  <span class="counter-pill" id="paymentStatusPill">Pendiente</span>
+                </div>
+                <div class="cash-confirm-grid">
+                  <div class="confirm-list" id="paymentConfirmList">
+                    <span>Selecciona un credito para preparar el cobro.</span>
+                  </div>
+                  <div class="receipt-preview" id="receiptPreview">
+                    <span>Comprobante</span>
+                    <strong>Se generara al confirmar</strong>
+                  </div>
+                </div>
+                <footer class="cash-action-bar">
+                  <button class="ghost-button" id="newPaymentButton" type="button">Nuevo cobro</button>
+                  <button class="ghost-button" type="submit" form="paymentForm" data-payment-submit data-print-after="false">Registrar</button>
+                  <button class="primary-button" type="submit" form="paymentForm" data-payment-submit data-print-after="true">Registrar e imprimir</button>
+                  <button class="ghost-button" id="reprintLastPaymentButton" type="button" hidden>Reimprimir</button>
+                </footer>
+              </section>
+            </section>
+          </section>
+        </section>
+
+        <section class="caja-view-panel cash-panel cash-list-panel" data-caja-panel="desembolso">
+          <div class="cash-panel-head">
+            <div>
+              <span class="eyebrow">Desembolsos</span>
+              <h2>Creditos aprobados para salida de caja</h2>
+            </div>
+            <span class="counter-pill" id="disbursementCounter">0 registros</span>
+          </div>
+          <div class="cash-toolbar">
+            <label class="field">
+              <span>Buscar credito aprobado</span>
+              <input id="disbursementSearchInput" type="search" placeholder="Solicitud, credito, cedula, cliente" />
+            </label>
+            <button class="primary-button" id="refreshDisbursementsButton" type="button">Actualizar</button>
+          </div>
+          <div class="table-wrap cash-table-wrap">
+            <table class="data-table caja-table">
+              <thead>
+                <tr>
+                  <th>Credito</th>
+                  <th>Cliente</th>
+                  <th>Monto aprobado</th>
+                  <th>Producto</th>
+                  <th>Oficial</th>
+                  <th>Accion</th>
+                </tr>
+              </thead>
+              <tbody id="disbursementBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="caja-view-panel cash-panel cash-list-panel" data-caja-panel="vouchers">
+          <div class="cash-panel-head">
+            <div>
+              <span class="eyebrow">Vouchers</span>
+              <h2>Reimpresion controlada</h2>
+            </div>
+            <span class="counter-pill" id="tableCounter">0 registros</span>
+          </div>
+          <div class="cash-toolbar cash-toolbar-compact">
+            <label class="field">
+              <span>Buscar recibo</span>
+              <input id="searchInput" type="search" placeholder="Voucher, recibo, credito, cliente" />
+            </label>
+            <label class="field"><span>Desde</span><input id="dateFrom" type="date" /></label>
+            <label class="field"><span>Hasta</span><input id="dateTo" type="date" /></label>
+            <button class="primary-button" id="refreshButton" type="button">Actualizar</button>
+            <button class="ghost-button" id="clearButton" type="button">Limpiar</button>
+          </div>
+          <div class="table-wrap cash-table-wrap">
+            <table class="data-table caja-table">
+              <thead>
+                <tr>
+                  <th>Voucher</th>
+                  <th>Credito</th>
+                  <th>Cliente</th>
+                  <th>Fecha</th>
+                  <th>Monto</th>
+                  <th>Forma</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="caja-view-panel cash-panel cash-arqueo-panel" data-caja-panel="arqueo">
+          <div class="cash-panel-head">
+            <div>
+              <span class="eyebrow">Arqueo</span>
+              <h2>Conteo y movimientos de la sesion</h2>
+            </div>
+            <div class="cash-inline-actions">
+              <button class="primary-button" id="startCashCountButton" type="button">Iniciar arqueo</button>
+              <button class="ghost-button" id="cashReportButtonMirror" type="button">Imprimir hoja</button>
+            </div>
+          </div>
+          <div class="cash-arqueo-grid">
+            <section class="cash-subsection">
+              <h3>Saldos teoricos</h3>
+              <div class="cash-credit-grid">
+                <article class="detail-item"><span>NIO</span><strong id="metricNioMirror">0.00</strong></article>
+                <article class="detail-item"><span>USD</span><strong id="metricUsdMirror">0.00</strong></article>
+                <article class="detail-item"><span>Ingresos</span><strong id="metricIncomeMirror">0.00</strong></article>
+              </div>
+            </section>
+            <section class="cash-subsection">
+              <h3>Movimientos de la sesion</h3>
+              <div id="cashSummaryBody" class="related-panel"></div>
+            </section>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="cashModal" hidden>
+      <section class="modal-shell modal-wide" role="dialog" aria-modal="true" aria-labelledby="cashModalTitle">
+        <header class="modal-head">
+          <div>
+            <span class="eyebrow" id="cashModalKicker">Caja</span>
+            <h2 id="cashModalTitle">Abrir caja</h2>
+          </div>
+          <button class="ghost-button" id="cashModalClose" type="button">Cerrar</button>
+        </header>
+
+        <form class="ops-form caja-cash-form" id="cashForm">
+          <section class="form-section caja-cash-data">
+            <h3>Datos de caja</h3>
+            <div class="form-grid caja-cash-data-grid">
+              <label class="field"><span>Sucursal asignada</span><select id="cashBranch"></select></label>
+              <label class="field"><span id="cashNioLabel">Apertura NIO</span><input id="openingNio" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span id="cashUsdLabel">Apertura USD</span><input id="openingUsd" type="number" min="0" step="0.01" /></label>
+              <label class="field field-wide"><span>Observacion</span><input id="cashObservation" maxlength="1000" /></label>
+            </div>
+            <div class="cash-hint" id="cashBranchHint">La sucursal se toma del usuario de caja.</div>
+            <div class="caja-count-summary" id="cashTheorySummary" hidden></div>
+            <div class="caja-count-summary" id="cashCountSummary" hidden></div>
+          </section>
+
+          <section class="form-section caja-denomination-section">
+            <h3>Desglose NIO</h3>
+            <div class="denomination-grid" id="breakdownNio"></div>
+          </section>
+
+          <section class="form-section caja-denomination-section">
+            <h3>Desglose USD</h3>
+            <div class="denomination-grid" id="breakdownUsd"></div>
+          </section>
+
+          <div class="form-message" id="cashMessage" hidden></div>
+          <footer class="modal-actions">
+            <button class="ghost-button" id="cashCancel" type="button">Cancelar</button>
+            <button class="primary-button" type="submit" id="cashSubmitButton">Confirmar</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="voidModal" hidden>
+      <section class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="voidModalTitle">
+        <header class="modal-head">
+          <div>
+            <span class="eyebrow">Anulacion</span>
+            <h2 id="voidModalTitle">Anular voucher</h2>
+          </div>
+          <button class="ghost-button" id="voidModalClose" type="button">Cerrar</button>
+        </header>
+
+        <form class="ops-form" id="voidForm">
+          <section class="form-section">
+            <h3>Voucher seleccionado</h3>
+            <div class="detail-grid caja-credit-detail-grid" id="voidVoucherSummary"></div>
+            <label class="field field-wide">
+              <span>Motivo de anulacion</span>
+              <textarea id="voidReason" rows="4" maxlength="1000" placeholder="Ej. Error de digitacion en monto."></textarea>
+            </label>
+            <div class="cash-hint">La anulacion reversa el pago, el movimiento de caja y el saldo del credito. No elimina el historial.</div>
+          </section>
+          <div class="form-message" id="voidMessage" hidden></div>
+          <footer class="modal-actions">
+            <button class="ghost-button" id="voidCancel" type="button">Cancelar</button>
+            <button class="danger-button" type="submit" id="voidSubmitButton">Anular voucher</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="disbursementModal" hidden>
+      <section class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="disbursementTitle">
+        <header class="modal-head">
+          <div>
+            <span class="eyebrow">Desembolso</span>
+            <h2 id="disbursementTitle">Salida de caja</h2>
+          </div>
+          <button class="ghost-button" id="disbursementModalClose" type="button">Cerrar</button>
+        </header>
+        <form class="ops-form" id="disbursementForm">
+          <section class="form-section">
+            <h3 id="disbursementSummaryTitle">Credito aprobado</h3>
+            <div class="detail-grid caja-credit-detail-grid" id="disbursementSummary"></div>
+            <div class="form-grid">
+              <label class="field"><span>Monto a desembolsar</span><input id="disbursementAmount" type="number" min="0.01" step="0.01" /></label>
+              <label class="field"><span>Moneda de salida</span><select id="disbursementCurrency"></select></label>
+              <label class="field"><span>Forma</span><select id="disbursementMethod"></select></label>
+              <label class="field"><span>TC institucional</span><input id="disbursementExchangeRate" type="number" min="0" step="0.0001" readonly /></label>
+              <label class="field field-wide"><span>Observacion</span><input id="disbursementObservation" maxlength="1000" /></label>
+            </div>
+          </section>
+          <div class="form-message" id="disbursementMessage" hidden></div>
+          <footer class="modal-actions">
+            <button class="ghost-button" id="disbursementCancel" type="button">Cancelar</button>
+            <button class="primary-button" id="disbursementSubmitButton" type="submit">Desembolsar e imprimir voucher</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/modules/caja/caja.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

@@ -1,0 +1,1308 @@
+@{
+    ViewData["Title"] = "RRHH";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Capital Humano</title>
+    <meta name="description" content="Módulo empresarial de Capital Humano." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/rrhh/assets/css/rrhh.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body>
+    <div class="page-glow page-glow-left" aria-hidden="true"></div>
+    <div class="page-glow page-glow-right" aria-hidden="true"></div>
+
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button">
+            Panel principal
+          </button>
+
+          <div class="title-block">
+            <span class="eyebrow">Gestion interna</span>
+            <h1>Capital Humano</h1>
+          </div>
+        </div>
+
+        <div class="topbar-group topbar-group-right">
+          <button class="ghost-button theme-toggle-header" id="themeToggle" type="button" aria-pressed="false" data-theme-toggle>
+            <span id="themeToggleLabel" data-theme-label>Modo oscuro</span>
+          </button>
+
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+
+          <button class="ghost-button is-subtle" id="closeSession" type="button">
+            Cerrar sesion
+          </button>
+        </div>
+      </header>
+
+      <section class="rrhh-command-strip" aria-label="Centro operativo de capital humano">
+        <label class="rrhh-global-search">
+          <span>Buscar colaborador</span>
+          <input
+            type="search"
+            id="rrhhGlobalSearch"
+            placeholder="Codigo, nombre, cedula o correo"
+            autocomplete="off"
+          />
+        </label>
+
+        <div class="rrhh-command-actions" aria-label="Accesos rapidos RRHH">
+          <button class="ghost-button" type="button" data-rrhh-shortcut="empleado">
+            Empleados
+          </button>
+          <button class="ghost-button" type="button" data-rrhh-shortcut="contrato">
+            Contratos
+          </button>
+          <button class="ghost-button" type="button" data-rrhh-shortcut="vacacion">
+            Vacaciones
+          </button>
+          <button class="ghost-button" type="button" data-rrhh-shortcut="estructura_empresa">
+            Organigrama
+          </button>
+        </div>
+      </section>
+
+      <section class="rrhh-surface">
+        <nav class="main-tabs" id="mainNav" aria-label="Modulos RRHH"></nav>
+
+        <section class="workspace-card">
+          <header class="workspace-header">
+            <div class="workspace-copy">
+              <span class="eyebrow" id="workspaceKicker">Módulo</span>
+              <h2 id="workspaceTitle">Operación</h2>
+              <p class="workspace-subtitle" id="workspaceSubtitle">
+                Selecciona un bloque.
+              </p>
+            </div>
+
+            <div class="workspace-meta">
+              <span class="trail-chip" id="workspaceTrail" hidden></span>
+              <button class="ghost-button" id="workspaceBackButton" type="button" hidden>
+                Volver
+              </button>
+            </div>
+          </header>
+
+          <section class="group-board" id="groupBoard"></section>
+
+          <section class="placeholder-shell" id="placeholderShell" hidden>
+            <div class="placeholder-grid" id="placeholderStats"></div>
+            <div class="placeholder-actions" id="placeholderActions"></div>
+          </section>
+
+          <section class="employee-shell" id="employeeShell" hidden>
+            <div class="toolbar-card">
+              <div class="toolbar-main">
+                <label class="search-field">
+                  <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Buscar por codigo, nombre, cedula o correo"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="select-field">
+                  <select id="statusFilter" aria-label="Filtrar por estado"></select>
+                </label>
+              </div>
+
+              <div class="toolbar-actions">
+                <button class="ghost-button" id="refreshButton" type="button">
+                  Actualizar
+                </button>
+                <button class="primary-button" id="newEmployeeButton" type="button">
+                  Nuevo
+                </button>
+                <button class="ghost-button" id="viewEmployeeButton" type="button">
+                  Ver ficha
+                </button>
+                <button class="ghost-button" id="editEmployeeButton" type="button">
+                  Editar
+                </button>
+                <button class="danger-button" id="deleteEmployeeButton" type="button">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+
+            <div class="quick-filter-row" id="employeeStatusChips" aria-label="Filtros rapidos de empleados"></div>
+
+            <div class="content-grid is-detail-collapsed" id="employeeContentGrid">
+              <section class="panel-card table-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Gestión</span>
+                    <h3>Empleados</h3>
+                  </div>
+                  <span class="counter-pill" id="tableCounter">0 registros</span>
+                </div>
+
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Codigo</th>
+                        <th>Nombre</th>
+                        <th>Cedula</th>
+                        <th>Cargo</th>
+                        <th>Area</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="employeeTableBody"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <aside class="panel-card detail-card" id="employeeDetailCard" hidden>
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Ficha</span>
+                    <h3 id="detailTitle">Sin seleccion</h3>
+                  </div>
+                </div>
+
+                <div class="detail-body" id="detailBody"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="contract-shell" id="contractShell" hidden>
+            <div class="toolbar-card">
+              <div class="toolbar-main">
+                <label class="search-field">
+                  <input
+                    type="search"
+                    id="contractSearchInput"
+                    placeholder="Buscar por numero, empleado, tipo u horario"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="select-field">
+                  <select id="contractStatusFilter" aria-label="Filtrar contratos"></select>
+                </label>
+              </div>
+
+              <div class="toolbar-actions">
+                <button class="ghost-button" id="refreshContractButton" type="button">
+                  Actualizar
+                </button>
+                <button class="primary-button" id="newContractButton" type="button">
+                  Nuevo
+                </button>
+                <button class="ghost-button" id="editContractButton" type="button">
+                  Editar
+                </button>
+                <button class="ghost-button" id="printContractButton" type="button">
+                  Imprimir
+                </button>
+                <button class="danger-button" id="deleteContractButton" type="button">
+                  Eliminar
+                </button>
+              </div>
+            </div>
+
+            <div class="content-grid">
+              <section class="panel-card table-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Gestion</span>
+                    <h3>Contratos laborales</h3>
+                  </div>
+                  <span class="counter-pill" id="contractTableCounter">0 registros</span>
+                </div>
+
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Numero</th>
+                        <th>Empleado</th>
+                        <th>Tipo</th>
+                        <th>Horario</th>
+                        <th>Inicio</th>
+                        <th>Salario</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="contractTableBody"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <aside class="panel-card detail-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Ficha</span>
+                    <h3 id="contractDetailTitle">Sin seleccion</h3>
+                  </div>
+                </div>
+
+                <div class="detail-body" id="contractDetailBody"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="workflow-shell" id="workflowShell" hidden>
+            <div class="toolbar-card">
+              <div class="toolbar-main">
+                <label class="search-field">
+                  <input
+                    type="search"
+                    id="workflowSearchInput"
+                    placeholder="Buscar por empleado, tipo o estado"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="select-field">
+                  <select id="workflowStatusFilter" aria-label="Filtrar flujo"></select>
+                </label>
+              </div>
+
+              <div class="toolbar-actions">
+                <button class="ghost-button" id="refreshWorkflowButton" type="button">
+                  Actualizar
+                </button>
+                <button class="primary-button" id="newWorkflowButton" type="button">
+                  Nuevo
+                </button>
+                <button class="ghost-button" id="viewWorkflowButton" type="button">
+                  Ver detalle
+                </button>
+                <button class="ghost-button" id="editWorkflowButton" type="button">
+                  Editar
+                </button>
+                <button class="ghost-button" id="workflowExtraButton" type="button" hidden>
+                  Configurar
+                </button>
+                <button class="ghost-button" id="approveWorkflowButton" type="button">
+                  Aprobar
+                </button>
+                <button class="danger-button" id="rejectWorkflowButton" type="button">
+                  Rechazar
+                </button>
+              </div>
+            </div>
+
+            <div class="quick-filter-row" id="workflowStatusChips" aria-label="Filtros rapidos del flujo"></div>
+
+            <div class="content-grid is-detail-collapsed" id="workflowContentGrid">
+              <section class="panel-card table-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Flujo</span>
+                    <h3 id="workflowPanelTitle">Novedades</h3>
+                  </div>
+                  <span class="counter-pill" id="workflowTableCounter">0 registros</span>
+                </div>
+
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead id="workflowTableHead"></thead>
+                    <tbody id="workflowTableBody"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <aside class="panel-card detail-card" id="workflowDetailCard" hidden>
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Detalle</span>
+                    <h3 id="workflowDetailTitle">Sin seleccion</h3>
+                  </div>
+                </div>
+
+                <div class="detail-body" id="workflowDetailBody"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="config-shell" id="configShell" hidden>
+            <div class="config-grid" id="configGrid"></div>
+          </section>
+
+          <section class="clock-shell" id="clockShell" hidden>
+            <div class="toolbar-card">
+              <div class="toolbar-main toolbar-main-clock">
+                <label class="search-field">
+                  <input
+                    type="search"
+                    id="clockSearchInput"
+                    placeholder="Buscar por codigo, nombre o cedula"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="select-field">
+                  <input id="clockDateFrom" type="date" />
+                </label>
+
+                <label class="select-field">
+                  <input id="clockDateTo" type="date" />
+                </label>
+
+                <label class="select-field">
+                  <select id="clockEmployeeFilter" aria-label="Filtrar empleado"></select>
+                </label>
+              </div>
+
+              <div class="toolbar-actions">
+                <button class="ghost-button" id="refreshClockButton" type="button">
+                  Actualizar
+                </button>
+                <button class="ghost-button" id="exportClockExcelButton" type="button">
+                  Excel
+                </button>
+                <button class="ghost-button" id="exportClockPdfButton" type="button">
+                  PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="content-grid">
+              <section class="panel-card table-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow" id="clockPanelKicker">Control</span>
+                    <h3 id="clockPanelTitle">Jornadas marcadas</h3>
+                  </div>
+                  <span class="counter-pill" id="clockTableCounter">0 registros</span>
+                </div>
+
+                <div class="hours-dashboard" id="clockDashboardSummary"></div>
+
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Empleado</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Horas</th>
+                        <th>Extra/menos</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="clockTableBody"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <aside class="panel-card detail-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Reporte</span>
+                    <h3 id="clockDetailTitle">Sin seleccion</h3>
+                  </div>
+                </div>
+
+                <div class="detail-body" id="clockDetailBody"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="report-shell" id="reportShell" hidden>
+            <div class="toolbar-card">
+              <div class="toolbar-main toolbar-main-clock">
+                <label class="search-field">
+                  <input
+                    type="search"
+                    id="reportSearchInput"
+                    placeholder="Buscar por codigo, nombre, cargo o departamento"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="select-field">
+                  <input id="reportCutoffDate" type="date" />
+                </label>
+
+                <label class="select-field">
+                  <select id="reportDepartmentFilter" aria-label="Filtrar departamento"></select>
+                </label>
+
+                <label class="select-field">
+                  <select id="reportEmployeeStatusFilter" aria-label="Filtrar estado de empleado"></select>
+                </label>
+              </div>
+
+              <div class="toolbar-actions">
+                <button class="ghost-button" id="refreshReportButton" type="button">
+                  Actualizar
+                </button>
+                <button class="ghost-button" id="exportReportExcelButton" type="button">
+                  Excel
+                </button>
+                <button class="ghost-button" id="exportReportPdfButton" type="button">
+                  PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="content-grid">
+              <section class="panel-card table-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Reporte</span>
+                    <h3>Vacaciones disponibles</h3>
+                  </div>
+                  <span class="counter-pill" id="reportTableCounter">0 registros</span>
+                </div>
+
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Codigo</th>
+                        <th>Empleado</th>
+                        <th>Fecha ingreso</th>
+                        <th>Departamento</th>
+                        <th>Contrato</th>
+                        <th>Disponibles</th>
+                      </tr>
+                    </thead>
+                    <tbody id="reportTableBody"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <aside class="panel-card detail-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Detalle</span>
+                    <h3 id="reportDetailTitle">Sin seleccion</h3>
+                  </div>
+                </div>
+
+                <div class="detail-body" id="reportDetailBody"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="structure-shell" id="structureShell" hidden>
+            <article class="panel-card structure-hero-card">
+              <div class="structure-hero-copy">
+                <span class="eyebrow">Estructura institucional</span>
+                <h3>Organigrama formal</h3>
+                <p class="workspace-subtitle">
+                  Administra nodos formales, titulares, vacantes y ramas ejecutivas desde una vista segmentada.
+                </p>
+              </div>
+
+              <div class="toolbar-actions structure-hero-actions">
+                <button class="ghost-button" id="loadStructureDemoButton" type="button">
+                  Cargar estructura base
+                </button>
+                <button class="primary-button" id="newStructureButton" type="button">
+                  Nuevo
+                </button>
+                <button class="ghost-button" id="editStructureButton" type="button">
+                  Editar
+                </button>
+                <button class="danger-button" id="deleteStructureButton" type="button">
+                  Eliminar
+                </button>
+                <button class="ghost-button" id="refreshStructureButton" type="button">
+                  Actualizar
+                </button>
+              </div>
+            </article>
+
+            <div class="structure-summary-grid" id="structureSummaryGrid"></div>
+
+            <div class="structure-workspace-grid">
+              <aside class="panel-card structure-sidebar-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Filtros</span>
+                    <h3>Explorador</h3>
+                  </div>
+                </div>
+
+                <div class="structure-sidebar-stack">
+                  <label class="search-field">
+                    <input
+                      type="search"
+                      id="structureSearchInput"
+                      placeholder="Buscar nodo, titular, cargo o departamento"
+                      autocomplete="off"
+                    />
+                  </label>
+
+                  <label class="select-field">
+                    <select id="structureDepartmentFilter" aria-label="Filtrar por departamento"></select>
+                  </label>
+
+                  <section class="structure-filter-section">
+                    <div class="structure-filter-heading">
+                      <span class="eyebrow">Ramas</span>
+                      <p>Delimita la vista por gerencia o revisa toda la empresa.</p>
+                    </div>
+
+                    <div class="filter-chip-row filter-chip-column" id="structureFilterRow"></div>
+                  </section>
+                </div>
+              </aside>
+
+              <div class="structure-main-stack">
+                <section class="panel-card table-card structure-tree-card">
+                  <div class="panel-head">
+                    <div class="panel-copy">
+                      <span class="eyebrow">Organigrama</span>
+                      <h3>Estructura organizativa formal</h3>
+                    </div>
+                    <span class="counter-pill" id="structureTableCounter">0 nodos</span>
+                  </div>
+
+                  <div class="structure-tree" id="structureTreeBody"></div>
+                </section>
+
+                <aside class="panel-card detail-card structure-detail-card">
+                  <div class="panel-head">
+                    <div class="panel-copy">
+                      <span class="eyebrow">Detalle</span>
+                      <h3 id="structureDetailTitle">Sin seleccion</h3>
+                    </div>
+                  </div>
+
+                  <div class="detail-body" id="structureDetailBody"></div>
+                </aside>
+              </div>
+            </div>
+          </section>
+
+          <section class="audit-shell" id="auditShell" hidden>
+            <div class="toolbar-card">
+              <div class="toolbar-main toolbar-main-clock">
+                <label class="search-field">
+                  <input
+                    type="search"
+                    id="auditSearchInput"
+                    placeholder="Buscar por proceso, evento, referencia o usuario"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label class="select-field">
+                  <input id="auditDateFrom" type="date" />
+                </label>
+
+                <label class="select-field">
+                  <input id="auditDateTo" type="date" />
+                </label>
+
+                <label class="select-field">
+                  <select id="auditProcessFilter" aria-label="Filtrar proceso"></select>
+                </label>
+              </div>
+
+              <div class="toolbar-actions">
+                <button class="ghost-button" id="refreshAuditButton" type="button">
+                  Actualizar
+                </button>
+              </div>
+            </div>
+
+            <div class="content-grid">
+              <section class="panel-card table-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Auditoria</span>
+                    <h3>Bitacora RRHH</h3>
+                  </div>
+                  <span class="counter-pill" id="auditTableCounter">0 registros</span>
+                </div>
+
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Proceso</th>
+                        <th>Evento</th>
+                        <th>Referencia</th>
+                        <th>Usuario</th>
+                      </tr>
+                    </thead>
+                    <tbody id="auditTableBody"></tbody>
+                  </table>
+                </div>
+              </section>
+
+              <aside class="panel-card detail-card">
+                <div class="panel-head">
+                  <div class="panel-copy">
+                    <span class="eyebrow">Detalle</span>
+                    <h3 id="auditDetailTitle">Sin seleccion</h3>
+                  </div>
+                </div>
+
+                <div class="detail-body" id="auditDetailBody"></div>
+              </aside>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+    <div class="modal-backdrop" id="employeeModal" hidden>
+      <div class="modal-panel modal-panel-wide">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow" id="employeeModalKicker">Nuevo empleado</span>
+            <h2 id="employeeModalTitle">Crear empleado</h2>
+          </div>
+        </div>
+
+        <form class="employee-form" id="employeeForm" novalidate>
+          <input type="hidden" id="employeeId" name="employeeId" />
+
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Codigo</span>
+              <input
+                id="codigoEmpleado"
+                name="codigoEmpleado"
+                maxlength="30"
+                autocomplete="off"
+                readonly
+              />
+              <small class="field-error" data-error-for="codigoEmpleado"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Usuario</span>
+              <input
+                id="usuarioSistema"
+                name="usuarioSistema"
+                maxlength="200"
+                autocomplete="off"
+                readonly
+              />
+              <small class="field-error" data-error-for="usuarioSistema"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Cedula</span>
+              <input id="cedula" name="cedula" maxlength="17" autocomplete="off" />
+              <small class="field-error" data-error-for="cedula"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Departamento</span>
+              <select id="idDepartamento" name="idDepartamento"></select>
+              <small class="field-error" data-error-for="idDepartamento"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Cargo</span>
+              <select id="idCargo" name="idCargo"></select>
+              <small class="field-error" data-error-for="idCargo"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Jefe inmediato</span>
+              <select id="idSupervisorEmpleado" name="idSupervisorEmpleado"></select>
+              <small class="field-error" data-error-for="idSupervisorEmpleado"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Nombres</span>
+              <input id="nombres" name="nombres" maxlength="150" autocomplete="off" />
+              <small class="field-error" data-error-for="nombres"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Apellidos</span>
+              <input id="apellidos" name="apellidos" maxlength="150" autocomplete="off" />
+              <small class="field-error" data-error-for="apellidos"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Fecha ingreso</span>
+              <input
+                id="fechaIngreso"
+                name="fechaIngreso"
+                type="text"
+                inputmode="numeric"
+                maxlength="10"
+                placeholder="dd/mm/aaaa"
+                autocomplete="off"
+              />
+              <small class="field-error" data-error-for="fechaIngreso"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Fecha nacimiento</span>
+              <input
+                id="fechaNacimiento"
+                name="fechaNacimiento"
+                type="text"
+                inputmode="numeric"
+                maxlength="10"
+                placeholder="dd/mm/aaaa"
+                autocomplete="off"
+              />
+              <small class="field-error" data-error-for="fechaNacimiento"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Sexo</span>
+              <select id="sexo" name="sexo"></select>
+              <small class="field-error" data-error-for="sexo"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Estado civil</span>
+              <select id="estadoCivil" name="estadoCivil"></select>
+              <small class="field-error" data-error-for="estadoCivil"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Telefono</span>
+              <input id="telefono" name="telefono" maxlength="9" autocomplete="off" />
+              <small class="field-error" data-error-for="telefono"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Correo</span>
+              <input id="correo" name="correo" maxlength="150" autocomplete="off" />
+              <small class="field-error" data-error-for="correo"></small>
+            </label>
+
+            <label class="form-field">
+              <span>INSS</span>
+              <input id="inss" name="inss" maxlength="20" autocomplete="off" />
+              <small class="field-error" data-error-for="inss"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Banco</span>
+              <select id="idBanco" name="idBanco"></select>
+              <small class="field-error" data-error-for="idBanco"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Cuenta bancaria</span>
+              <input
+                id="numeroCuentaBancaria"
+                name="numeroCuentaBancaria"
+                maxlength="30"
+                autocomplete="off"
+              />
+              <small class="field-error" data-error-for="numeroCuentaBancaria"></small>
+            </label>
+
+            <label class="form-field form-field-full">
+              <span>Direccion</span>
+              <textarea id="direccion" name="direccion" maxlength="300" rows="3"></textarea>
+              <small class="field-error" data-error-for="direccion"></small>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelEmployeeModal" type="button">
+              Cancelar
+            </button>
+            <button class="primary-button" id="saveEmployeeButton" type="submit">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="contractModal" hidden>
+      <div class="modal-panel modal-panel-wide">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow" id="contractModalKicker">Nuevo contrato</span>
+            <h2 id="contractModalTitle">Registrar contrato</h2>
+          </div>
+        </div>
+
+        <form class="employee-form" id="contractForm" novalidate>
+          <input type="hidden" id="contractId" name="contractId" />
+
+          <div class="form-grid">
+            <label class="form-field form-field-full">
+              <span>Empleado</span>
+              <select id="contractEmployeeId" name="contractEmployeeId"></select>
+              <small class="field-error" data-error-for="idEmpleado"></small>
+            </label>
+
+            <div class="balance-card form-field-full" id="contractEmployeeHint" hidden></div>
+
+            <label class="form-field">
+              <span>Numero contrato</span>
+              <input id="numeroContrato" name="numeroContrato" maxlength="100" autocomplete="off" />
+              <small class="field-error" data-error-for="numeroContrato"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Tipo contrato</span>
+              <select id="idTipoContrato" name="idTipoContrato"></select>
+              <small class="field-error" data-error-for="idTipoContrato"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Horario laboral</span>
+              <select id="idHorarioLaboral" name="idHorarioLaboral"></select>
+              <small class="field-error" data-error-for="idHorarioLaboral"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Fecha inicio</span>
+              <input
+                id="contractFechaInicio"
+                name="contractFechaInicio"
+                type="text"
+                inputmode="numeric"
+                maxlength="10"
+                placeholder="dd/mm/aaaa"
+                autocomplete="off"
+              />
+              <small class="field-error" data-error-for="fechaInicio"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Fecha fin</span>
+              <input
+                id="contractFechaFin"
+                name="contractFechaFin"
+                type="text"
+                inputmode="numeric"
+                maxlength="10"
+                placeholder="dd/mm/aaaa"
+                autocomplete="off"
+              />
+              <small class="field-error" data-error-for="fechaFin"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Salario base mensual</span>
+              <input
+                id="salarioBaseMensual"
+                name="salarioBaseMensual"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="0.01"
+                autocomplete="off"
+              />
+              <small class="field-error" data-error-for="salarioBaseMensual"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Moneda</span>
+              <select id="moneda" name="moneda"></select>
+              <small class="field-error" data-error-for="moneda"></small>
+            </label>
+
+            <label class="checkbox-field form-field-full" for="esContratoVigente">
+              <input id="esContratoVigente" name="esContratoVigente" type="checkbox" />
+              <div class="checkbox-copy">
+                <strong>Contrato vigente</strong>
+                <span>Si se activa, este contrato queda como el vigente del colaborador.</span>
+              </div>
+            </label>
+
+            <label class="form-field form-field-full">
+              <span>Observacion</span>
+              <textarea id="observacion" name="observacion" maxlength="1000" rows="4"></textarea>
+              <small class="field-error" data-error-for="observacion"></small>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelContractModal" type="button">
+              Cancelar
+            </button>
+            <button class="primary-button" id="saveContractButton" type="submit">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="workflowModal" hidden>
+      <div class="modal-panel modal-panel-wide">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow" id="workflowModalKicker">Nuevo registro</span>
+            <h2 id="workflowModalTitle">Registrar novedad</h2>
+          </div>
+        </div>
+
+        <form class="employee-form" id="workflowForm" novalidate>
+          <input type="hidden" id="workflowRecordId" name="workflowRecordId" />
+
+          <div class="form-grid" id="workflowFormFields"></div>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelWorkflowModal" type="button">
+              Cancelar
+            </button>
+            <button class="primary-button" id="saveWorkflowButton" type="submit">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop modal-backdrop-top" id="workflowResolveModal" hidden>
+      <div class="modal-panel modal-panel-small">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow" id="workflowResolveKicker">Resolucion</span>
+            <h2 id="workflowResolveTitle">Resolver registro</h2>
+          </div>
+        </div>
+
+        <div class="delete-copy" id="workflowResolveText"></div>
+
+        <form class="delete-form" id="workflowResolveForm" novalidate>
+          <label class="form-field" id="workflowApprovedDaysField" hidden>
+            <span>Dias aprobados</span>
+            <input
+              id="workflowApprovedDays"
+              name="workflowApprovedDays"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.01"
+              autocomplete="off"
+            />
+            <small class="field-error" data-error-for="approvedDays"></small>
+          </label>
+
+          <label class="form-field">
+            <span>Observacion</span>
+            <textarea id="workflowResolutionObservation" rows="4" maxlength="500"></textarea>
+          </label>
+
+          <p class="delete-error" id="workflowResolveError"></p>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelWorkflowResolveModal" type="button">
+              Cancelar
+            </button>
+            <button class="primary-button" id="confirmWorkflowResolveButton" type="submit">
+              Confirmar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop modal-backdrop-top" id="vacationBulkModal" hidden>
+      <div class="modal-panel modal-panel-small">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">Ajuste masivo</span>
+            <h2>Descontar vacaciones</h2>
+          </div>
+        </div>
+
+        <form class="delete-form" id="vacationBulkForm" novalidate>
+          <label class="form-field">
+            <span>Fecha del ajuste</span>
+            <input id="vacationBulkDate" name="vacationBulkDate" type="date" />
+          </label>
+
+          <label class="checkbox-field form-field-full" for="vacationBulkAmountHalf">
+            <input id="vacationBulkAmountHalf" name="vacationBulkAmount" type="radio" value="0.5" checked />
+            <div class="checkbox-copy">
+              <strong>Medio dia</strong>
+              <span>Restara 0.5 dias de vacaciones a cada colaborador activo.</span>
+            </div>
+          </label>
+
+          <label class="checkbox-field form-field-full" for="vacationBulkAmountFull">
+            <input id="vacationBulkAmountFull" name="vacationBulkAmount" type="radio" value="1" />
+            <div class="checkbox-copy">
+              <strong>Un dia completo</strong>
+              <span>Restara 1 dia de vacaciones a cada colaborador activo.</span>
+            </div>
+          </label>
+
+          <label class="form-field">
+            <span>Observacion</span>
+            <textarea
+              id="vacationBulkObservation"
+              name="vacationBulkObservation"
+              rows="4"
+              maxlength="250"
+              placeholder="Ejemplo: Feriado a cuenta de vacaciones"
+            ></textarea>
+          </label>
+
+          <p class="delete-error" id="vacationBulkError"></p>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelVacationBulkModal" type="button">
+              Cancelar
+            </button>
+            <button class="primary-button" id="confirmVacationBulkButton" type="submit">
+              Aplicar ajuste
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop modal-backdrop-top" id="deleteModal" hidden>
+      <div class="modal-panel modal-panel-small">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">Autorizacion</span>
+            <h2>Eliminar empleado</h2>
+          </div>
+        </div>
+
+        <div class="delete-copy" id="deleteTargetText"></div>
+
+        <form class="delete-form" id="deleteForm" novalidate>
+          <label class="form-field">
+            <span>Usuario administrador</span>
+            <input id="adminUsuario" name="adminUsuario" autocomplete="off" />
+          </label>
+
+          <label class="form-field">
+            <span>Contrasena administrador</span>
+            <input id="adminPassword" name="adminPassword" type="password" autocomplete="off" />
+          </label>
+
+          <p class="delete-error" id="deleteError"></p>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelDeleteModal" type="button">
+              Cancelar
+            </button>
+            <button class="danger-button" id="confirmDeleteButton" type="submit">
+              Confirmar eliminacion
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop modal-backdrop-top" id="contractDeleteModal" hidden>
+      <div class="modal-panel modal-panel-small">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow">Autorizacion</span>
+            <h2>Eliminar contrato</h2>
+          </div>
+        </div>
+
+        <div class="delete-copy" id="contractDeleteTargetText"></div>
+
+        <form class="delete-form" id="contractDeleteForm" novalidate>
+          <label class="form-field">
+            <span>Usuario administrador</span>
+            <input id="contractAdminUsuario" name="contractAdminUsuario" autocomplete="off" />
+          </label>
+
+          <label class="form-field">
+            <span>Contrasena administrador</span>
+            <input
+              id="contractAdminPassword"
+              name="contractAdminPassword"
+              type="password"
+              autocomplete="off"
+            />
+          </label>
+
+          <p class="delete-error" id="contractDeleteError"></p>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelContractDeleteModal" type="button">
+              Cancelar
+            </button>
+            <button class="danger-button" id="confirmContractDeleteButton" type="submit">
+              Confirmar eliminacion
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop modal-backdrop-top" id="genericDeleteModal" hidden>
+      <div class="modal-panel modal-panel-small">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow" id="genericDeleteKicker">Autorizacion</span>
+            <h2 id="genericDeleteTitle">Eliminar registro</h2>
+          </div>
+        </div>
+
+        <div class="delete-copy" id="genericDeleteTargetText"></div>
+
+        <form class="delete-form" id="genericDeleteForm" novalidate>
+          <label class="form-field">
+            <span>Usuario administrador</span>
+            <input id="genericAdminUsuario" name="genericAdminUsuario" autocomplete="off" />
+          </label>
+
+          <label class="form-field">
+            <span>Contrasena administrador</span>
+            <input
+              id="genericAdminPassword"
+              name="genericAdminPassword"
+              type="password"
+              autocomplete="off"
+            />
+          </label>
+
+          <p class="delete-error" id="genericDeleteError"></p>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelGenericDeleteModal" type="button">
+              Cancelar
+            </button>
+            <button class="danger-button" id="confirmGenericDeleteButton" type="submit">
+              Confirmar eliminacion
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="structureModal" hidden>
+      <div class="modal-panel modal-panel-wide">
+        <div class="modal-head">
+          <div>
+            <span class="eyebrow" id="structureModalKicker">Nuevo nodo</span>
+            <h2 id="structureModalTitle">Crear nodo formal</h2>
+          </div>
+        </div>
+
+        <form class="employee-form" id="structureForm" novalidate>
+          <input type="hidden" id="structureNodeId" name="structureNodeId" />
+
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Codigo</span>
+              <input id="structureCodigoNodo" name="codigoNodo" maxlength="50" autocomplete="off" />
+              <small class="field-error" data-error-for="codigoNodo"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Tipo de nodo</span>
+              <select id="structureTipoNodo" name="tipoNodo"></select>
+              <small class="field-error" data-error-for="tipoNodo"></small>
+            </label>
+
+            <label class="form-field form-field-full">
+              <span>Nombre del nodo</span>
+              <input id="structureNombreNodo" name="nombreNodo" maxlength="200" autocomplete="off" />
+              <small class="field-error" data-error-for="nombreNodo"></small>
+            </label>
+
+            <label class="form-field form-field-full">
+              <span>Nodo padre</span>
+              <select id="structureParentNodeId" name="idNodoPadre"></select>
+              <small class="field-error" data-error-for="idNodoPadre"></small>
+            </label>
+
+            <label class="form-field form-field-full">
+              <span>Empleado titular</span>
+              <select id="structureEmployeeId" name="idEmpleadoTitular"></select>
+              <small class="field-error" data-error-for="idEmpleadoTitular"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Departamento asociado</span>
+              <select id="structureDepartmentId" name="idDepartamento"></select>
+              <small class="field-error" data-error-for="idDepartamento"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Cargo asociado</span>
+              <select id="structurePositionId" name="idCargo"></select>
+              <small class="field-error" data-error-for="idCargo"></small>
+            </label>
+
+            <label class="form-field">
+              <span>Orden visual</span>
+              <input
+                id="structureOrdenVisual"
+                name="ordenVisual"
+                type="number"
+                inputmode="numeric"
+                min="0"
+                step="1"
+                autocomplete="off"
+              />
+              <small class="field-error" data-error-for="ordenVisual"></small>
+            </label>
+
+            <label class="checkbox-field form-field-full" for="structureActivo">
+              <input id="structureActivo" name="activo" type="checkbox" />
+              <div class="checkbox-copy">
+                <strong>Nodo activo</strong>
+                <span>Permite publicar el nodo dentro del organigrama formal.</span>
+              </div>
+            </label>
+
+            <label class="form-field form-field-full">
+              <span>Observacion</span>
+              <textarea id="structureObservacion" name="observacion" maxlength="500" rows="4"></textarea>
+              <small class="field-error" data-error-for="observacion"></small>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelStructureModal" type="button">
+              Cancelar
+            </button>
+            <button class="primary-button" id="saveStructureButton" type="submit">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/models/rrhh.model.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/employee.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/contract.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/novedades.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/clock.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/dashboard.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/catalog.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/personnel-action.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/expediente.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/structure.service.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/views/rrhh.view.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/controllers/rrhh.controller.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

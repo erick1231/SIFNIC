@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">SIFNIC Móvil</string>
+    <string name="login_title">Ingreso</string>
+    <string name="hint_user">Usuario</string>
+    <string name="hint_pass">Contraseña</string>
+    <string name="btn_login">Entrar</string>
+    <string name="menu_credits">Créditos</string>
+    <string name="menu_new_request">Nueva solicitud</string>
+    <string name="menu_logout">Salir</string>
+    <string name="pay_apply">Aplicar pago</string>
+    <string name="open_cash_first">Abrir caja</string>
+    <string name="voucher">Ver voucher</string>
+</resources>

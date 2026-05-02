@@ -1,0 +1,254 @@
+@{
+    ViewData["Title"] = "Contabilidad";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Contabilidad</title>
+    <meta name="description" content="Modulo contable SIFNIC para MUC, asientos y reporteria CONAMI." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/creditos/assets/css/creditos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body class="contabilidad-page">
+    <main class="ops-shell">
+      <header class="ops-topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button">Volver al panel</button>
+          <div class="title-block">
+            <span class="eyebrow">Finanzas y regulatorio</span>
+            <h1>Contabilidad</h1>
+          </div>
+        </div>
+
+        <div class="topbar-group topbar-group-right">
+          <button class="ghost-button" id="themeToggle" type="button" aria-pressed="false">
+            <span id="themeToggleLabel">Modo oscuro</span>
+          </button>
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+          <button class="ghost-button" id="closeSession" type="button">Cerrar sesion</button>
+        </div>
+      </header>
+
+      <section class="accounting-summary-grid">
+        <article class="metric-card"><span>Cuentas activas</span><strong id="metricAccounts">0</strong></article>
+        <article class="metric-card"><span>Asientos</span><strong id="metricEntries">0</strong></article>
+        <article class="metric-card"><span>Periodos abiertos</span><strong id="metricPeriods">0</strong></article>
+        <article class="metric-card"><span>Diferencia Deb/Cred</span><strong id="metricDifference">0.00</strong></article>
+      </section>
+
+      <nav class="caja-tabs accounting-tabs" aria-label="Opciones contables">
+        <button class="caja-tab is-active" type="button" data-accounting-view="catalogo">Catalogo MUC</button>
+        <button class="caja-tab" type="button" data-accounting-view="asientos">Asientos</button>
+        <button class="caja-tab" type="button" data-accounting-view="reportes">Reportes</button>
+        <button class="caja-tab" type="button" data-accounting-view="prim">PRIM CONAMI</button>
+      </nav>
+
+      <section class="accounting-panel is-active" data-accounting-panel="catalogo">
+        <section class="accounting-catalog-grid">
+          <section class="table-panel accounting-list-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">MUC CONAMI / Servicredito</span>
+                <h2>Catalogo de cuentas</h2>
+              </div>
+              <span class="counter-pill" id="accountCounter">0 registros</span>
+            </div>
+
+            <div class="toolbar-card accounting-filter-row">
+              <label class="field">
+                <span>Buscar</span>
+                <input id="accountSearch" type="search" placeholder="Codigo o nombre de cuenta" />
+              </label>
+              <label class="field">
+                <span>Clase</span>
+                <select id="accountClassFilter"></select>
+              </label>
+              <label class="field">
+                <span>Estado</span>
+                <select id="accountStatusFilter">
+                  <option value="TODOS">TODOS</option>
+                  <option value="ACTIVA">ACTIVA</option>
+                  <option value="INACTIVA">INACTIVA</option>
+                </select>
+              </label>
+              <label class="inline-check">
+                <input id="movementOnlyFilter" type="checkbox" />
+                <span>Solo movimiento</span>
+              </label>
+              <button class="primary-button" id="newAccountButton" type="button">Nueva cuenta</button>
+              <button class="ghost-button" id="refreshAccountsButton" type="button">Actualizar</button>
+            </div>
+
+            <div class="table-wrap accounting-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Codigo</th>
+                    <th>Cuenta</th>
+                    <th>Clase</th>
+                    <th>Grupo</th>
+                    <th>Naturaleza</th>
+                    <th>Movimiento</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="accountTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="table-panel accounting-form-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">CRUD</span>
+                <h2 id="accountFormTitle">Nueva cuenta</h2>
+              </div>
+              <span class="status-pill" id="accountFormStatus">MUC</span>
+            </div>
+
+            <form id="accountForm" class="ops-form accounting-form">
+              <div class="form-grid">
+                <label class="field"><span>Codigo</span><input id="accountCode" maxlength="20" inputmode="numeric" /></label>
+                <label class="field field-wide"><span>Nombre</span><input id="accountName" maxlength="250" /></label>
+                <label class="field"><span>Clase</span><select id="accountClass"></select></label>
+                <label class="field"><span>Grupo</span><input id="accountGroup" type="number" min="1" step="1" /></label>
+                <label class="field"><span>Nivel</span><input id="accountLevel" type="number" min="1" max="20" step="1" /></label>
+                <label class="field"><span>Naturaleza</span><select id="accountNature"></select></label>
+                <label class="field"><span>Nivel 1</span><input id="accountLevel1" maxlength="50" /></label>
+                <label class="field"><span>Nivel 2</span><input id="accountLevel2" maxlength="50" /></label>
+                <label class="field field-wide"><span>Nivel 3 / PRIM</span><input id="accountLevel3" maxlength="50" /></label>
+                <label class="inline-check"><input id="accountMovement" type="checkbox" /><span>Permite movimiento</span></label>
+                <label class="inline-check"><input id="accountActive" type="checkbox" checked /><span>Cuenta activa</span></label>
+              </div>
+              <div class="form-message" id="accountMessage" hidden></div>
+              <footer class="modal-actions accounting-actions">
+                <button class="ghost-button" id="clearAccountButton" type="button">Limpiar</button>
+                <button class="danger-button" id="toggleAccountButton" type="button" disabled>Inactivar</button>
+                <button class="primary-button" type="submit">Guardar cuenta</button>
+              </footer>
+            </form>
+          </aside>
+        </section>
+      </section>
+
+      <section class="accounting-panel" data-accounting-panel="asientos">
+        <section class="table-panel">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Diario general</span>
+              <h2>Asientos contables</h2>
+            </div>
+            <span class="counter-pill" id="entryCounter">0 registros</span>
+          </div>
+          <div class="toolbar-card accounting-filter-row">
+            <label class="field"><span>Desde</span><input id="entryFrom" type="date" /></label>
+            <label class="field"><span>Hasta</span><input id="entryTo" type="date" /></label>
+            <label class="field"><span>Origen</span><select id="entryOrigin"><option value="TODOS">TODOS</option><option value="CREDITO">CREDITO</option><option value="CAJA">CAJA</option><option value="BANCOS">BANCOS</option><option value="CXP">CXP</option><option value="COMPRAS">COMPRAS</option></select></label>
+            <label class="field field-grow"><span>Buscar</span><input id="entrySearch" type="search" placeholder="Referencia, descripcion o tipo" /></label>
+            <button class="primary-button" id="refreshEntriesButton" type="button">Actualizar</button>
+          </div>
+          <div class="accounting-split">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Referencia</th>
+                    <th>Tipo</th>
+                    <th>Origen</th>
+                    <th>Debito</th>
+                    <th>Credito</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="entryTableBody"></tbody>
+              </table>
+            </div>
+            <aside class="detail-panel accounting-entry-detail">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Detalle</span>
+                  <h2 id="entryDetailTitle">Selecciona un asiento</h2>
+                </div>
+              </div>
+              <div class="related-panel" id="entryDetailBody">El diario se alimenta de caja, credito, bancos, CXP y asientos operativos.</div>
+            </aside>
+          </div>
+        </section>
+      </section>
+
+      <section class="accounting-panel" data-accounting-panel="reportes">
+        <section class="table-panel">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Reporteria contable</span>
+              <h2>Balance, resultado y cartera</h2>
+            </div>
+            <button class="ghost-button" id="printReportButton" type="button">Imprimir / PDF</button>
+          </div>
+          <div class="toolbar-card accounting-filter-row">
+            <label class="field"><span>Reporte</span><select id="reportType"></select></label>
+            <label class="field"><span>Desde</span><input id="reportFrom" type="date" /></label>
+            <label class="field"><span>Hasta / corte</span><input id="reportTo" type="date" /></label>
+            <button class="primary-button" id="generateReportButton" type="button">Generar</button>
+            <button class="ghost-button" id="exportReportButton" type="button">Excel CSV</button>
+          </div>
+          <div class="report-heading" id="reportHeading">Selecciona un reporte para generarlo.</div>
+          <div class="table-wrap accounting-report-wrap">
+            <table class="data-table" id="reportTable">
+              <thead id="reportHead"></thead>
+              <tbody id="reportBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="accounting-panel" data-accounting-panel="prim">
+        <section class="table-panel">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Base regulatoria</span>
+              <h2>Mapeo preliminar PRIM CONAMI</h2>
+            </div>
+            <button class="ghost-button" id="exportPrimButton" type="button">Excel CSV</button>
+          </div>
+          <div class="form-message is-info">
+            Esta vista deja en un solo cajon las cuentas MUC usadas para cartera, ingresos financieros, provisiones y cuentas de orden. Sirve como base para armar el PRIM completo por archivos y validadores CONAMI.
+          </div>
+          <div class="table-wrap accounting-report-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Bloque PRIM</th>
+                  <th>Codigo</th>
+                  <th>Cuenta</th>
+                  <th>Clase</th>
+                  <th>Naturaleza</th>
+                  <th>Movimiento</th>
+                </tr>
+              </thead>
+              <tbody id="primTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/modules/contabilidad/contabilidad.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

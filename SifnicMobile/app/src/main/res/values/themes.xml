@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.SifnicMobile" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/sifnic_teal</item>
+        <item name="colorPrimaryVariant">@color/sifnic_teal_dark</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="android:statusBarColor">@color/sifnic_bg</item>
+        <item name="android:navigationBarColor">@color/sifnic_bg</item>
+        <item name="android:windowBackground">@color/sifnic_bg</item>
+    </style>
+</resources>

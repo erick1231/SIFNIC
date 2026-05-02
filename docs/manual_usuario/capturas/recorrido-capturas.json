@@ -1,0 +1,96 @@
+﻿{
+    "generatedAt":  "2026-04-30T19:51:22",
+    "base":  "http://localhost:5277",
+    "captures":  [
+                     {
+                         "title":  "Ingreso al sistema",
+                         "url":  "http://localhost:5277/App/Login",
+                         "name":  "01-login",
+                         "file":  "docs/manual_usuario/capturas/01-login.png"
+                     },
+                     {
+                         "title":  "Panel principal",
+                         "url":  "http://localhost:5277/App/Dashboard",
+                         "name":  "02-dashboard",
+                         "file":  "docs/manual_usuario/capturas/02-dashboard.png"
+                     },
+                     {
+                         "title":  "Clientes - listado maestro",
+                         "url":  "http://localhost:5277/App/Clientes",
+                         "name":  "03-clientes-listado",
+                         "file":  "docs/manual_usuario/capturas/03-clientes-listado.png"
+                     },
+                     {
+                         "title":  "Clientes - ficha y prestamo activo",
+                         "url":  "http://localhost:5277/App/Clientes",
+                         "name":  "04-clientes-prestamo-activo",
+                         "file":  "docs/manual_usuario/capturas/04-clientes-prestamo-activo.png"
+                     },
+                     {
+                         "title":  "Clientes - tablas del prestamo",
+                         "url":  "http://localhost:5277/App/Clientes",
+                         "name":  "04b-clientes-prestamo-tablas",
+                         "file":  "docs/manual_usuario/capturas/04b-clientes-prestamo-tablas.png"
+                     },
+                     {
+                         "title":  "Clientes - nuevo cliente",
+                         "url":  "http://localhost:5277/App/Clientes",
+                         "name":  "05-clientes-nuevo-formulario",
+                         "file":  "docs/manual_usuario/capturas/05-clientes-nuevo-formulario.png"
+                     },
+                     {
+                         "title":  "Solicitudes de credito - bandeja",
+                         "url":  "http://localhost:5277/App/SolicitudesCredito",
+                         "name":  "06-solicitudes-listado",
+                         "file":  "docs/manual_usuario/capturas/06-solicitudes-listado.png"
+                     },
+                     {
+                         "title":  "Solicitudes - expediente",
+                         "url":  "http://localhost:5277/App/SolicitudesCredito",
+                         "name":  "07-solicitudes-expediente",
+                         "file":  "docs/manual_usuario/capturas/07-solicitudes-expediente.png"
+                     },
+                     {
+                         "title":  "Solicitudes - nueva solicitud",
+                         "url":  "http://localhost:5277/App/SolicitudesCredito",
+                         "name":  "08-solicitudes-nueva-formulario",
+                         "file":  "docs/manual_usuario/capturas/08-solicitudes-nueva-formulario.png"
+                     },
+                     {
+                         "title":  "Simulador de credito",
+                         "url":  "http://localhost:5277/App/SimuladorCredito",
+                         "name":  "09-simulador-credito",
+                         "file":  "docs/manual_usuario/capturas/09-simulador-credito.png"
+                     },
+                     {
+                         "title":  "Configuracion",
+                         "url":  "http://localhost:5277/App/Configuracion",
+                         "name":  "10-configuracion",
+                         "file":  "docs/manual_usuario/capturas/10-configuracion.png"
+                     },
+                     {
+                         "title":  "Recursos Humanos",
+                         "url":  "http://localhost:5277/App/Rrhh",
+                         "name":  "11-rrhh",
+                         "file":  "docs/manual_usuario/capturas/11-rrhh.png"
+                     },
+                     {
+                         "title":  "Nomina",
+                         "url":  "http://localhost:5277/App/Nomina",
+                         "name":  "12-nomina",
+                         "file":  "docs/manual_usuario/capturas/12-nomina.png"
+                     },
+                     {
+                         "title":  "Mi Portal",
+                         "url":  "http://localhost:5277/App/MiPortal",
+                         "name":  "13-mi-portal",
+                         "file":  "docs/manual_usuario/capturas/13-mi-portal.png"
+                     },
+                     {
+                         "title":  "Bandeja Supervisor",
+                         "url":  "http://localhost:5277/App/BandejaSupervisor",
+                         "name":  "14-bandeja-supervisor",
+                         "file":  "docs/manual_usuario/capturas/14-bandeja-supervisor.png"
+                     }
+                 ]
+}

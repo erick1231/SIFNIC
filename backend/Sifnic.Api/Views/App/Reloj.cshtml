@@ -1,0 +1,192 @@
+@{
+    ViewData["Title"] = "Reloj";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Reloj</title>
+    <meta name="description" content="Marcacion y control de asistencia SIFNIC." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/clock.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body>
+    <div class="page-aura page-aura-left" aria-hidden="true"></div>
+    <div class="page-aura page-aura-right" aria-hidden="true"></div>
+
+    <main class="clock-app">
+      <header class="clock-topbar">
+        <div class="brand-block">
+          <div class="brand-icon" aria-hidden="true"></div>
+          <div class="brand-copy">
+            <span class="eyebrow">Capital humano</span>
+            <h1 id="clockPageTitle">Reloj</h1>
+          </div>
+        </div>
+
+        <div class="clock-topbar-actions">
+          <div class="user-pill" id="clockSessionPill" hidden>
+            <strong id="clockSessionUser">Usuario</strong>
+            <span id="clockSessionMeta">Sesion activa</span>
+          </div>
+
+          <button class="ghost-button" id="clockBackButton" type="button">
+            Volver
+          </button>
+          <button class="ghost-button" id="clockLogoutButton" type="button" hidden>
+            Cerrar sesion
+          </button>
+        </div>
+      </header>
+
+      <section class="clock-layout clock-layout-public" id="publicClockPanel" hidden>
+        <section class="panel-card clock-main-card clock-main-card-public">
+          <div class="panel-copy">
+            <span class="eyebrow">Marcacion</span>
+            <h2>Entrada y salida por cedula</h2>
+          </div>
+
+          <form class="clock-form clock-form-compact" id="clockForm" novalidate>
+            <div class="clock-search-row">
+              <label class="field clock-search-field">
+                <span>Cedula</span>
+                <input
+                  id="clockCedula"
+                  name="clockCedula"
+                  maxlength="17"
+                  placeholder="000-000000-0000A"
+                  autocomplete="off"
+                />
+              </label>
+
+              <button class="ghost-button" id="clockSearchButton" type="submit">
+                Buscar
+              </button>
+            </div>
+
+            <p class="form-note" id="clockFormNote" aria-live="polite">
+              Ingresa la cedula y presiona Buscar o Enter para cargar al colaborador.
+            </p>
+
+            <div class="clock-form-actions clock-mark-actions">
+              <button class="ghost-button clock-action-button" id="clockEntryButton" type="button" disabled>
+                Marcar entrada
+              </button>
+              <button class="ghost-button clock-action-button" id="clockExitButton" type="button" disabled>
+                Marcar salida
+              </button>
+            </div>
+          </form>
+
+          <div class="clock-public-grid">
+            <div class="clock-employee-card" id="clockEmployeeCard">
+              <div class="detail-empty">
+                <p>Sin colaborador consultado.</p>
+              </div>
+            </div>
+
+            <div class="clock-history-card" id="clockHistoryCard">
+              <div class="detail-empty">
+                <p>Las marcaciones del colaborador apareceran aqui.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="clock-control-layout" id="clockControlPanel" hidden>
+        <div class="toolbar-card">
+          <div class="toolbar-main toolbar-main-clock">
+            <label class="search-field">
+              <input
+                type="search"
+                id="controlSearch"
+                placeholder="Buscar por empleado, codigo o cedula"
+                autocomplete="off"
+              />
+            </label>
+
+            <label class="select-field">
+              <input id="controlDateFrom" type="date" />
+            </label>
+
+            <label class="select-field">
+              <input id="controlDateTo" type="date" />
+            </label>
+
+            <label class="select-field">
+              <select id="controlEmployeeFilter" aria-label="Filtrar empleado"></select>
+            </label>
+          </div>
+
+          <div class="toolbar-actions">
+            <button class="ghost-button" id="controlRefreshButton" type="button">
+              Actualizar
+            </button>
+            <button class="ghost-button" id="controlExportExcelButton" type="button">
+              Excel
+            </button>
+            <button class="ghost-button" id="controlExportPdfButton" type="button">
+              PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="control-grid">
+          <section class="panel-card table-card">
+            <div class="panel-head">
+              <div class="panel-copy">
+                <span class="eyebrow">Reporte</span>
+                <h2>Control de asistencias</h2>
+              </div>
+              <span class="counter-pill" id="controlCounter">0 registros</span>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Empleado</th>
+                    <th>Entrada</th>
+                    <th>Salida</th>
+                    <th>Horas</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="controlTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="panel-card detail-card">
+            <div class="panel-head">
+              <div class="panel-copy">
+                <span class="eyebrow">Jornada</span>
+                <h2 id="controlDetailTitle">Sin seleccion</h2>
+              </div>
+            </div>
+
+            <div class="detail-body" id="controlDetailBody"></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast-region" id="clockToastRegion" aria-live="polite"></div>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/modules/rrhh/services/clock.service.js" asp-append-version="true"></script>
+    <script src="~/js/clock/clock.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

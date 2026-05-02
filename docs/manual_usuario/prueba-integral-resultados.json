@@ -1,0 +1,146 @@
+﻿{
+    "generatedAt":  "2026-04-30T19:49:54",
+    "clientePrueba":  "13 - Cliente Integral 0107",
+    "prestamoPrueba":  "18 - CRD-2026-000006",
+    "total":  17,
+    "exitosas":  17,
+    "fallidas":  0,
+    "results":  [
+                    {
+                        "prueba":  "App login",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/App/Login",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "\u003c!DOCTYPE html\u003e\n\u003chtml lang=\"es\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"UTF-8\" /\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale="
+                    },
+                    {
+                        "prueba":  "App dashboard",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/App/Dashboard",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "\u003c!DOCTYPE html\u003e\n\u003chtml lang=\"es\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"UTF-8\" /\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale="
+                    },
+                    {
+                        "prueba":  "Clientes catalogos",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/Clientes/Catalogos",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":{\"identificationTypes\":[\"CEDULA\",\"RUC\",\"PASAPORTE\",\"RESIDENCIA\"],\"clientTypes\":[\"INDIVIDUAL\",\"GRUPO_SOLIDARIO\",\"JURIDICO\"]"
+                    },
+                    {
+                        "prueba":  "Clientes listar",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/Clientes/Listar?search=\u0026status=TODOS\u0026type=TODOS",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":[{\"id\":13,\"cedula\":\"0011501900107Z\",\"names\":\"Cliente\",\"lastNames\":\"Integral 0107\",\"fullName\":\"Cliente Integral 0107\",\"birt"
+                    },
+                    {
+                        "prueba":  "Clientes obtener ficha",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/Clientes/Obtener?id=13",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":{\"client\":{\"id\":13,\"cedula\":\"0011501900107Z\",\"names\":\"Cliente\",\"lastNames\":\"Integral 0107\",\"fullName\":\"Cliente Integral 01"
+                    },
+                    {
+                        "prueba":  "Clientes prestamo activo detalle",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/Clientes/PrestamoDetalle?id=18",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":{\"id\":18,\"number\":\"CRD-2026-000006\",\"status\":\"VI\",\"currency\":\"NIO\",\"approvedAmount\":8000.00,\"principalBalance\":8000.00,\"di"
+                    },
+                    {
+                        "prueba":  "Clientes imprimir estado cuenta",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/Clientes/EstadoCuentaPrestamoHtml?id=18",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "HTML imprimible generado"
+                    },
+                    {
+                        "prueba":  "Clientes imprimir plan pago",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/Clientes/PlanPagoPrestamoHtml?id=18",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "HTML imprimible generado"
+                    },
+                    {
+                        "prueba":  "Solicitudes catalogos",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/SolicitudesCredito/Catalogos",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":{\"clients\":[{\"id\":13,\"identification\":\"0011501900107Z\",\"name\":\"Cliente Integral 0107\",\"clientType\":\"INDIVIDUAL\",\"status\":\""
+                    },
+                    {
+                        "prueba":  "Solicitudes listar",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/SolicitudesCredito/Listar?search=\u0026status=TODOS",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":[{\"id\":9,\"clientId\":13,\"clientIdentification\":\"0011501900107Z\",\"clientName\":\"Cliente Integral 0107\",\"clientType\":\"\",\"numbe"
+                    },
+                    {
+                        "prueba":  "Solicitudes obtener expediente",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/SolicitudesCredito/Obtener?id=9",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":{\"request\":{\"id\":9,\"clientId\":13,\"clientIdentification\":\"0011501900107Z\",\"clientName\":\"Cliente Integral 0107\",\"clientType\""
+                    },
+                    {
+                        "prueba":  "Solicitudes expediente PDF/HTML",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/SolicitudesCredito/ExpedienteHtml?id=9",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "Expediente imprimible disponible"
+                    },
+                    {
+                        "prueba":  "Solicitudes plan pago HTML",
+                        "metodo":  "GET",
+                        "url":  "http://localhost:5277/SolicitudesCredito/PlanPagoHtml?id=9",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "Plan imprimible disponible"
+                    },
+                    {
+                        "prueba":  "Simulador generar plan valido",
+                        "metodo":  "POST",
+                        "url":  "http://localhost:5277/SolicitudesCredito/GenerarPlan",
+                        "http":  200,
+                        "ok":  true,
+                        "nota":  "{\"ok\":true,\"data\":{\"paymentPlan\":[{\"number\":1,\"dueDate\":\"2026-06-01T00:00:00\",\"interestDays\":31,\"capital\":3500,\"interest\":578.67,\"commission\":70.00,\"sliding\":0,\"mora\":0,\"moraRate\":"
+                    },
+                    {
+                        "prueba":  "Validacion plan invalido",
+                        "metodo":  "POST",
+                        "url":  "http://localhost:5277/SolicitudesCredito/GenerarPlan",
+                        "http":  400,
+                        "ok":  true,
+                        "nota":  "{\"ok\":false,\"message\":\"No se pudo generar el plan de pago.\",\"errors\":{\"amount\":\"El monto debe ser mayor que cero.\",\"termMonths\":\"El plazo debe estar entre 1 y 120 meses.\",\"annualRa"
+                    },
+                    {
+                        "prueba":  "Validacion cliente incompleto",
+                        "metodo":  "POST",
+                        "url":  "http://localhost:5277/Clientes/Crear",
+                        "http":  400,
+                        "ok":  true,
+                        "nota":  "{\"ok\":false,\"message\":\"Corrige los datos del cliente.\",\"errors\":{\"names\":\"Ingresa los nombres.\",\"lastNames\":\"Ingresa los apellidos.\",\"cedula\":\"Ingresa la identificacion.\"}}"
+                    },
+                    {
+                        "prueba":  "Validacion solicitud incompleta",
+                        "metodo":  "POST",
+                        "url":  "http://localhost:5277/SolicitudesCredito/Crear",
+                        "http":  400,
+                        "ok":  true,
+                        "nota":  "{\"ok\":false,\"message\":\"Corrige los datos de la solicitud.\",\"errors\":{\"clientId\":\"Selecciona el cliente.\",\"amount\":\"El monto debe ser mayor que cero.\",\"termMonths\":\"El plazo debe es"
+                    }
+                ]
+}

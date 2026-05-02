@@ -1,0 +1,245 @@
+@{
+    ViewData["Title"] = "Login";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Acceso Seguro</title>
+    <meta
+      name="description"
+      content="Login del Sistema de Informacion Financiera Nicaragua."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body>
+    <div class="page-aura page-aura-left" aria-hidden="true"></div>
+    <div class="page-aura page-aura-right" aria-hidden="true"></div>
+
+    <div class="loader-screen" id="sessionLoader" aria-hidden="true">
+      <div class="loader-panel">
+        <div class="loader-head">
+          <span class="loader-kicker">Inicio de sesion</span>
+          <span class="loader-badge">SIFNIC</span>
+        </div>
+
+        <div class="loader-ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-track" cx="60" cy="60" r="52"></circle>
+            <circle class="ring-fill" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="loader-value">
+            <strong id="loaderPercent">0%</strong>
+            <span id="loaderPhase">Autenticando usuario</span>
+          </div>
+        </div>
+
+        <p class="loader-status" id="loaderStatus">
+          Validando credenciales y preparando la sesion.
+        </p>
+
+        <div class="loader-scroll" aria-hidden="true">
+          <span class="loader-scroll-track"></span>
+          <span class="loader-scroll-fill"></span>
+        </div>
+      </div>
+    </div>
+
+    <main class="auth-shell">
+      <section class="login-card">
+        <div class="login-header">
+          <div class="login-brand">
+            <div class="brand-icon" aria-hidden="true"></div>
+            <div class="brand-copy">
+              <span class="login-badge">Acceso seguro</span>
+              <strong>SIFNIC</strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="secondary-button secondary-button-clock-top"
+            id="clockEntryButton"
+          >
+            Reloj
+          </button>
+        </div>
+
+        <h1 id="loginTitle">Iniciar sesion</h1>
+        <p class="login-intro" id="loginIntro">
+          Usa tus credenciales institucionales para entrar al sistema.
+        </p>
+
+        <form class="login-form" id="loginForm" novalidate>
+          <label class="field">
+            <span>Usuario</span>
+            <div class="field-control">
+              <span class="field-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Ingresa tu usuario"
+                autocomplete="username"
+              />
+            </div>
+          </label>
+
+          <label class="field">
+            <span>Contrasena</span>
+            <div class="field-control">
+              <span class="field-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M17 9h-1V7a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-6 6.73V17a1 1 0 0 0 2 0v-1.27a2 2 0 1 0-2 0ZM10 9V7a2 2 0 1 1 4 0v2Z"
+                  />
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Ingresa tu contrasena"
+                autocomplete="current-password"
+              />
+              <button
+                class="toggle-password"
+                type="button"
+                id="togglePassword"
+                aria-label="Mostrar contrasena"
+              >
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 5c5.23 0 9.27 4.11 10 6.94-.73 2.83-4.77 6.06-10 6.06S2.73 14.77 2 11.94C2.73 9.11 6.77 5 12 5Zm0 2C8.44 7 5.41 9.72 4.32 12c1.09 2.28 4.12 4 7.68 4s6.59-1.72 7.68-4C18.59 9.72 15.56 7 12 7Zm0 2.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5Z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </label>
+
+          <div class="form-row">
+            <label class="remember-option">
+              <input type="checkbox" id="rememberMe" />
+              <span>Recordar sesion</span>
+            </label>
+            <a href="#" class="aux-link">Solicita apoyo para restablecer la clave</a>
+          </div>
+
+          <div class="login-actions">
+            <button type="submit" class="login-button" id="loginButton">
+              <span class="button-glow"></span>
+              <span class="button-content">
+                <span class="button-text" id="buttonText">Ingresar</span>
+                <span class="button-loader" aria-hidden="true"></span>
+              </span>
+            </button>
+          </div>
+
+          <p class="form-note" id="formNote" aria-live="polite">
+            Usa tus credenciales institucionales.
+          </p>
+        </form>
+
+        <form class="login-form password-change-form" id="passwordChangeForm" hidden novalidate>
+          <label class="field">
+            <span>Usuario</span>
+            <div class="field-control is-readonly">
+              <span class="field-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
+                  />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="changeUsername"
+                name="changeUsername"
+                autocomplete="username"
+                readonly
+              />
+            </div>
+          </label>
+
+          <label class="field">
+            <span>Nueva clave</span>
+            <div class="field-control">
+              <span class="field-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M17 9h-1V7a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-6 6.73V17a1 1 0 0 0 2 0v-1.27a2 2 0 1 0-2 0ZM10 9V7a2 2 0 1 1 4 0v2Z"
+                  />
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                placeholder="Ingresa tu nueva clave"
+                autocomplete="new-password"
+              />
+            </div>
+          </label>
+
+          <label class="field">
+            <span>Confirmar clave</span>
+            <div class="field-control">
+              <span class="field-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M17 9h-1V7a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Zm-6 6.73V17a1 1 0 0 0 2 0v-1.27a2 2 0 1 0-2 0ZM10 9V7a2 2 0 1 1 4 0v2Z"
+                  />
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirma tu nueva clave"
+                autocomplete="new-password"
+              />
+            </div>
+          </label>
+
+          <div class="password-change-actions">
+            <button type="button" class="secondary-button" id="cancelPasswordChange">
+              Volver
+            </button>
+
+            <button type="submit" class="login-button" id="changePasswordButton">
+              <span class="button-glow"></span>
+              <span class="button-content">
+                <span class="button-text" id="changePasswordButtonText">Actualizar clave</span>
+                <span class="button-loader" aria-hidden="true"></span>
+              </span>
+            </button>
+          </div>
+
+          <p class="form-note" id="changeFormNote" aria-live="polite">
+            Debes cambiar la clave temporal antes de entrar.
+          </p>
+        </form>
+      </section>
+    </main>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/js/auth/login.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

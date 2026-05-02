@@ -1,0 +1,1018 @@
+@{
+    ViewData["Title"] = "Nomina";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Nomina</title>
+    <meta
+      name="description"
+      content="Procesamiento de planilla, periodos de nomina, esquelas y reportes generales."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/nomina.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body>
+    <div class="page-aura page-aura-left" aria-hidden="true"></div>
+    <div class="page-aura page-aura-right" aria-hidden="true"></div>
+
+    <main class="payroll-shell">
+      <header class="topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button">
+            Panel principal
+          </button>
+
+          <div class="title-block">
+            <span class="eyebrow">Planilla</span>
+            <h1>Nomina</h1>
+            <p>
+              Ciclo de calculo, validacion, pago y reportes.
+            </p>
+          </div>
+        </div>
+
+        <div class="topbar-group topbar-group-right">
+          <button class="ghost-button theme-toggle-header" id="themeToggle" type="button" aria-pressed="false" data-theme-toggle>
+            <span id="themeToggleLabel" data-theme-label>Modo oscuro</span>
+          </button>
+
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+
+          <button class="ghost-button" id="refreshContextButton" type="button">
+            Actualizar
+          </button>
+
+          <button class="ghost-button is-subtle" id="logoutButton" type="button">
+            Cerrar sesion
+          </button>
+        </div>
+      </header>
+
+      <section class="payroll-cycle-strip" aria-label="Estado del ciclo de nomina">
+        <article class="cycle-main-card">
+          <span class="eyebrow">Periodo activo</span>
+          <strong id="cyclePeriodCode">Sin periodo</strong>
+          <span class="status-pill is-empty" id="cyclePeriodStatus">Pendiente</span>
+        </article>
+        <article class="cycle-step-card">
+          <span>Siguiente paso</span>
+          <strong id="cycleNextStep">Abrir periodo</strong>
+        </article>
+        <article class="cycle-step-card">
+          <span>Fecha de pago</span>
+          <strong id="cyclePayDate">Sin fecha</strong>
+        </article>
+        <article class="cycle-step-card">
+          <span>Incluidos</span>
+          <strong id="cycleIncludedEmployees">0 colaboradores</strong>
+        </article>
+        <article class="cycle-step-card">
+          <span>Ultima ejecucion</span>
+          <strong id="cycleLastRun">Sin corte</strong>
+        </article>
+      </section>
+
+      <section class="enterprise-next-action payroll-next-action" aria-label="Siguiente accion de nomina">
+        <div>
+          <span class="eyebrow">Ciclo de nomina</span>
+          <strong>Trabaja por estado: configurar, abrir periodo, procesar, revisar y cerrar</strong>
+          <p>El periodo activo y el siguiente paso quedan visibles para evitar pantallas vacias sin direccion.</p>
+        </div>
+        <a class="primary-button" href="#workspaceNav">Elegir proceso</a>
+      </section>
+
+      <nav class="workspace-nav" id="workspaceNav" aria-label="Secciones de nomina">
+        <button class="workspace-button is-active" data-workspace="resumen" type="button">
+          Resumen
+        </button>
+        <button class="workspace-button" data-workspace="configuracion" type="button">
+          Configuracion
+        </button>
+        <button class="workspace-button" data-workspace="periodos" type="button">
+          Periodos
+        </button>
+        <button class="workspace-button" data-workspace="procesamiento" type="button">
+          Procesamiento
+        </button>
+        <button class="workspace-button" data-workspace="obligaciones" type="button">
+          Obligaciones
+        </button>
+        <button class="workspace-button" data-workspace="reportes" type="button">
+          Reportes
+        </button>
+        <button class="workspace-button" data-workspace="liquidaciones" type="button">
+          Liquidaciones
+        </button>
+      </nav>
+
+      <section class="workspace-panel" data-workspace-panel="resumen">
+        <section class="metrics-grid">
+          <article class="metric-card">
+            <span class="metric-label">Empleados en nomina</span>
+            <strong class="metric-value" id="metricEmployees">0</strong>
+            <small class="metric-meta">Contratos fijos, temporales o indeterminados.</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Pasantes</span>
+            <strong class="metric-value" id="metricInterns">0</strong>
+            <small class="metric-meta">Ayuda economica parametrizable.</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Servicios</span>
+            <strong class="metric-value" id="metricServices">0</strong>
+            <small class="metric-meta">Retenciones a terceros y profesionales.</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Periodos abiertos</span>
+            <strong class="metric-value" id="metricOpenPeriods">0</strong>
+            <small class="metric-meta">Listos para registrar variables y procesar.</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Ultimo costo empresa</span>
+            <strong class="metric-value metric-value-small" id="metricLastCost">NIO 0.00</strong>
+            <small class="metric-meta" id="metricLastCostMeta">Sin corte generado.</small>
+          </article>
+        </section>
+
+        <section class="overview-grid">
+          <article class="panel-card">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Resumen operativo</span>
+                <h2>Parametros en uso</h2>
+              </div>
+            </div>
+
+            <div class="overview-highlight-grid" id="overviewHighlights"></div>
+          </article>
+
+          <article class="panel-card">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Poblacion actual</span>
+                <h2>Distribucion por contrato</h2>
+              </div>
+            </div>
+
+            <div class="table-mini-shell">
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>Contrato</th>
+                    <th class="number">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="contractPopulationBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <section class="workspace-panel" data-workspace-panel="configuracion" hidden>
+        <section class="layout-grid">
+          <aside class="sidebar-stack">
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Configuracion</span>
+                  <h2>Parametros empresa</h2>
+                </div>
+              </div>
+
+              <form class="form-grid compact-grid" id="configForm" novalidate>
+                <label class="field">
+                  <span>Regimen INSS</span>
+                  <select id="companyRegimen" required>
+                    <option value="INTEGRAL">Integral</option>
+                    <option value="IVM_RP">IVM_RP</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Trabajadores empresa</span>
+                  <input id="companyHeadcount" type="number" min="1" step="1" required />
+                </label>
+
+                <label class="field">
+                  <span>Tratamiento pasantia</span>
+                  <select id="internshipMode" required>
+                    <option value="NO_NOMINA">No nomina</option>
+                    <option value="COMO_EMPLEADO">Como empleado</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Dias mes nomina</span>
+                  <input id="payrollDaysMonth" type="number" min="1" step="0.01" required />
+                </label>
+
+                <label class="field">
+                  <span>Horas mes base</span>
+                  <input id="payrollHoursBase" type="number" min="1" step="0.01" required />
+                </label>
+
+                <div class="field field-full">
+                  <p class="hint-text">
+                    Aqui defines el regimen INSS, la base salario-hora y el comportamiento por defecto de pasantias.
+                  </p>
+                </div>
+
+                <div class="form-actions field-full">
+                  <button class="primary-button" id="saveConfigButton" type="submit">
+                    Guardar configuracion
+                  </button>
+                </div>
+              </form>
+            </article>
+          </aside>
+
+          <section class="main-stack">
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Contribuciones</span>
+                  <h2>Tasas vigentes</h2>
+                </div>
+              </div>
+
+              <div class="table-shell">
+                <table class="main-table">
+                  <thead>
+                    <tr>
+                      <th>Codigo</th>
+                      <th>Tipo</th>
+                      <th class="number">Porcentaje</th>
+                      <th>Vigencia</th>
+                    </tr>
+                  </thead>
+                  <tbody id="contributionsBody"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">IR laboral</span>
+                  <h2>Tabla progresiva</h2>
+                </div>
+              </div>
+
+              <div class="table-shell">
+                <table class="main-table">
+                  <thead>
+                    <tr>
+                      <th>Desde anual</th>
+                      <th>Hasta anual</th>
+                      <th class="number">Base impuesto</th>
+                      <th class="number">% exceso</th>
+                    </tr>
+                  </thead>
+                  <tbody id="irTableBody"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Criterios operativos</span>
+                  <h2>Reglas de calculo</h2>
+                </div>
+              </div>
+
+              <div class="rules-list is-compact" id="configRules"></div>
+            </article>
+          </section>
+        </section>
+      </section>
+
+      <section class="workspace-panel" data-workspace-panel="periodos" hidden>
+        <section class="layout-grid">
+          <aside class="sidebar-stack">
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Periodo</span>
+                  <h2>Abrir periodo</h2>
+                </div>
+              </div>
+
+              <form class="form-grid compact-grid" id="periodForm" novalidate>
+                <label class="field field-full">
+                  <span>Codigo periodo</span>
+                  <input id="periodCode" type="text" maxlength="30" placeholder="2026-04-Q2" required />
+                </label>
+
+                <label class="field">
+                  <span>Fecha desde</span>
+                  <input id="periodStartDate" type="date" required />
+                </label>
+
+                <label class="field">
+                  <span>Fecha hasta</span>
+                  <input id="periodEndDate" type="date" required />
+                </label>
+
+                <label class="field">
+                  <span>Fecha pago</span>
+                  <input id="periodPayDate" type="date" required />
+                </label>
+
+                <label class="field">
+                  <span>Tipo periodo</span>
+                  <select id="periodType" required>
+                    <option value="MENSUAL">Mensual</option>
+                    <option value="QUINCENAL">Quincenal</option>
+                    <option value="SEMANAL">Semanal</option>
+                    <option value="EXTRA">Extra</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span>Ultimo dia horas extra</span>
+                  <input id="overtimeCutoffDate" type="date" />
+                </label>
+
+                <label class="field field-full">
+                  <span>Observacion</span>
+                  <textarea
+                    id="periodObservation"
+                    rows="3"
+                    placeholder="Nota operativa del periodo o decision especial."
+                  ></textarea>
+                </label>
+
+                <div class="field field-full">
+                  <p class="hint-text">
+                    Solo entran a nomina las horas extra aprobadas y dentro del corte del periodo.
+                  </p>
+                </div>
+
+                <div class="form-actions field-full">
+                  <button class="ghost-button" id="clearPeriodButton" type="button">
+                    Limpiar
+                  </button>
+                  <button class="primary-button" id="openPeriodButton" type="submit">
+                    Abrir periodo
+                  </button>
+                </div>
+              </form>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Control</span>
+                  <h2>Periodo seleccionado</h2>
+                </div>
+                <span class="status-pill" id="selectedPeriodStatus">Sin seleccion</span>
+              </div>
+
+              <div class="selection-summary">
+                <strong id="selectedPeriodTitle">Selecciona un periodo para procesar.</strong>
+                <p id="selectedPeriodMeta">
+                  Aqui podras procesar la nomina, cerrarla y sacar el reporte general.
+                </p>
+                <p class="hint-text" id="selectedPeriodCutoff">
+                  Sin fecha de corte configurada todavia.
+                </p>
+              </div>
+
+              <div class="action-stack">
+                <button class="primary-button" id="generatePayrollButton" type="button">
+                  Procesar nomina
+                </button>
+                <button class="ghost-button" id="closePayrollButton" type="button">
+                  Cerrar nomina
+                </button>
+                <button class="ghost-button" id="generalReportButton" type="button">
+                  Reporte general
+                </button>
+                <button class="ghost-button" id="generalReportExcelButton" type="button">
+                  Excel general
+                </button>
+              </div>
+            </article>
+          </aside>
+
+          <section class="main-stack">
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Planeacion</span>
+                  <h2>Periodos y cortes</h2>
+                </div>
+              </div>
+
+              <div class="table-shell">
+                <table class="main-table">
+                  <thead>
+                    <tr>
+                      <th>Periodo</th>
+                      <th>Rango</th>
+                      <th>Pago</th>
+                      <th>Corte horas extra</th>
+                      <th>Estado</th>
+                      <th>Nomina</th>
+                      <th class="number">Colab.</th>
+                      <th class="number">Neto</th>
+                    </tr>
+                  </thead>
+                  <tbody id="periodsTableBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </section>
+      </section>
+
+      <section class="workspace-panel" data-workspace-panel="procesamiento" hidden>
+        <article class="panel-card">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Resultado</span>
+              <h2 id="payrollRunTitle">Detalle de nomina</h2>
+              <p class="hint-text" id="payrollRunMeta">
+                Selecciona un periodo con nomina generada para ver el desglose por empleado.
+              </p>
+            </div>
+          </div>
+
+          <section class="summary-grid">
+            <article class="summary-card">
+              <span>Bruto empleados</span>
+              <strong id="sumGrossEmployees">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Pasantes</span>
+              <strong id="sumInternships">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Servicios</span>
+              <strong id="sumServices">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>INSS laboral</span>
+              <strong id="sumInssLabor">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>INSS patronal</span>
+              <strong id="sumInssEmployer">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>IR trabajadores</span>
+              <strong id="sumIrEmployees">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Retenciones servicios</span>
+              <strong id="sumServiceRetention">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Neto total</span>
+              <strong id="sumNetTotal">NIO 0.00</strong>
+            </article>
+          </section>
+
+          <div class="records-layout">
+            <div class="table-shell">
+              <table class="main-table">
+                <thead>
+                  <tr>
+                    <th>Empleado</th>
+                    <th>Tipo pago</th>
+                    <th class="number">Bruto</th>
+                    <th class="number">Deducciones</th>
+                    <th class="number">Neto</th>
+                  </tr>
+                </thead>
+                <tbody id="detailsTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="detail-pane">
+              <div class="detail-head">
+                <div>
+                  <h3 id="selectedEmployeeName">Sin seleccion</h3>
+                  <p id="selectedEmployeeMeta" class="hint-text">
+                    Selecciona un empleado para ver su desglose.
+                  </p>
+                </div>
+              </div>
+
+              <div class="detail-grid" id="selectedEmployeeFacts"></div>
+
+              <div class="table-mini-shell">
+                <table class="mini-table">
+                  <thead>
+                    <tr>
+                      <th>Concepto</th>
+                      <th>Tipo</th>
+                      <th class="number">Monto</th>
+                    </tr>
+                  </thead>
+                  <tbody id="conceptsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="workspace-panel" data-workspace-panel="obligaciones" hidden>
+        <article class="panel-card">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">Obligaciones</span>
+              <h2>INSS, DGI y costo empresa</h2>
+              <p class="hint-text" id="obligationPeriodMeta">
+                Selecciona una nomina procesada para separar lo que se paga al colaborador de lo que se entera a terceros.
+              </p>
+            </div>
+          </div>
+
+          <div class="selection-summary">
+            <strong id="obligationPeriodTitle">Sin nomina generada seleccionada.</strong>
+          </div>
+
+          <section class="obligations-grid">
+            <article class="summary-card">
+              <span>INSS laboral retenido</span>
+              <strong id="obligationInssLabor">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>INSS patronal empresa</span>
+              <strong id="obligationInssEmployer">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>IR trabajadores</span>
+              <strong id="obligationIrWorkers">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Retenciones servicios</span>
+              <strong id="obligationServiceRetention">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Total enterar INSS</span>
+              <strong id="obligationInssTotal">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Total enterar DGI</span>
+              <strong id="obligationDgiTotal">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Neto planilla</span>
+              <strong id="obligationNetTotal">NIO 0.00</strong>
+            </article>
+
+            <article class="summary-card">
+              <span>Costo empresa</span>
+              <strong id="obligationCompanyCost">NIO 0.00</strong>
+            </article>
+          </section>
+
+          <div class="report-note">
+            <span class="eyebrow">Lectura</span>
+            <p class="hint-text">
+              Aqui se separa claramente lo que va al empleado, lo que se retiene por ley y el costo real de la empresa.
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <section class="workspace-panel" data-workspace-panel="reportes" hidden>
+        <section class="reports-grid">
+          <article class="panel-card">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Empleado</span>
+                <h2>Esquela individual</h2>
+              </div>
+            </div>
+
+            <div class="selection-summary">
+              <strong id="reportEmployeeTitle">Sin colaborador seleccionado.</strong>
+              <p id="reportEmployeeMeta">
+                Selecciona un empleado dentro de la nomina procesada para abrir su esquela de pago.
+              </p>
+            </div>
+
+            <div class="action-stack">
+              <button class="primary-button" id="employeePayslipButton" type="button">
+                Abrir esquela
+              </button>
+            </div>
+
+            <p class="hint-text">
+              La esquela ya trae su propia opcion de imprimir y generar PDF desde la misma vista.
+            </p>
+          </article>
+
+          <article class="panel-card">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Empresa</span>
+                <h2>Reporte general</h2>
+              </div>
+            </div>
+
+            <div class="selection-summary">
+              <strong id="reportPeriodTitle">Sin nomina generada seleccionada.</strong>
+              <p id="reportPeriodMeta">
+                Desde aqui revisas el consolidado de pago neto, INSS laboral y patronal, IR retenido y costo empresa.
+              </p>
+            </div>
+
+            <div class="action-stack">
+              <button class="ghost-button" id="generalReportButtonAlt" type="button">
+                Abrir reporte general
+              </button>
+              <button class="ghost-button" id="generalReportExcelButtonAlt" type="button">
+                Exportar Excel
+              </button>
+            </div>
+
+            <div class="report-note">
+              <span class="eyebrow">Futuro</span>
+              <p class="hint-text">
+                Queda listo para que mas adelante, al cerrar y revisar planilla, se dispare envio por correo a cada empleado.
+              </p>
+            </div>
+          </article>
+        </section>
+      </section>
+
+      <section class="workspace-panel" data-workspace-panel="liquidaciones" hidden>
+        <section class="layout-grid">
+          <aside class="sidebar-stack">
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Retiro</span>
+                  <h2>Calcular liquidacion</h2>
+                </div>
+              </div>
+
+              <form class="form-grid compact-grid" id="liquidationForm" novalidate>
+                <label class="field field-full">
+                  <span>Colaborador</span>
+                  <select id="liquidationEmployee" required></select>
+                </label>
+
+                <label class="field">
+                  <span>Fecha liquidacion</span>
+                  <input id="liquidationDate" type="date" required />
+                </label>
+
+                <label class="field">
+                  <span>Fecha baja</span>
+                  <input id="liquidationTerminationDate" type="date" required />
+                </label>
+
+                <label class="field field-full">
+                  <span>Causal legal</span>
+                  <select id="liquidationCause" required></select>
+                </label>
+
+                <label class="field">
+                  <span>Dias salario pendiente</span>
+                  <input
+                    id="pendingSalaryDays"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Auto"
+                  />
+                </label>
+
+                <div class="field">
+                  <p class="hint-text">
+                    Si lo dejas vacio, el sistema lo estima desde el ultimo periodo de nomina del colaborador.
+                  </p>
+                </div>
+
+                <label class="field field-full">
+                  <span>Motivo o detalle</span>
+                  <textarea
+                    id="liquidationReason"
+                    rows="4"
+                    placeholder="Ejemplo: Renuncia voluntaria presentada por escrito y aceptada para fecha de baja."
+                    required
+                  ></textarea>
+                </label>
+
+                <div class="field field-full">
+                  <p class="hint-text">
+                    El calculo usa vacaciones acumuladas del sistema, aguinaldo proporcional y las reglas de retiro configuradas para Nicaragua.
+                  </p>
+                </div>
+
+                <div class="form-actions field-full">
+                  <button class="ghost-button" id="clearLiquidationButton" type="button">
+                    Limpiar
+                  </button>
+                  <button class="primary-button" id="reviewLiquidationButton" type="submit">
+                    Revisar calculo
+                  </button>
+                </div>
+              </form>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Accion</span>
+                  <h2>Revision y cierre</h2>
+                </div>
+              </div>
+
+              <div class="selection-summary">
+                <strong id="liquidationPreviewTitle">Sin liquidacion revisada.</strong>
+                <p id="liquidationPreviewMeta">
+                  Selecciona un colaborador, revisa el calculo y luego confirma el retiro.
+                </p>
+                <p class="hint-text" id="liquidationPreviewNet">
+                  El neto final aparecera aqui cuando revises la liquidacion.
+                </p>
+              </div>
+
+              <div class="action-stack">
+                <button class="primary-button" id="processLiquidationButton" type="button">
+                  Procesar retiro
+                </button>
+                <button class="ghost-button" id="liquidationReportButton" type="button">
+                  Imprimir liquidacion
+                </button>
+                <button class="ghost-button" id="liquidationExcelButton" type="button">
+                  Excel liquidacion
+                </button>
+                <button class="ghost-button" id="recommendationLetterButton" type="button">
+                  Carta recomendacion
+                </button>
+              </div>
+
+              <div class="report-note">
+                <span class="eyebrow">Legal</span>
+                <p class="hint-text">
+                  El reporte final se genera despues de revisar el calculo, con formato listo para impresion y firma.
+                </p>
+              </div>
+            </article>
+          </aside>
+
+          <section class="main-stack">
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Detalle</span>
+                  <h2 id="liquidationDetailTitle">Revision de liquidacion</h2>
+                  <p class="hint-text" id="liquidationDetailMeta">
+                    Aqui se separan prestaciones gravables, no gravables, deducciones y aportes patronales.
+                  </p>
+                </div>
+              </div>
+
+              <section class="summary-grid">
+                <article class="summary-card">
+                  <span>Prestaciones gravables</span>
+                  <strong id="liqTaxableTotal">NIO 0.00</strong>
+                </article>
+
+                <article class="summary-card">
+                  <span>Prestaciones no gravables</span>
+                  <strong id="liqNonTaxableTotal">NIO 0.00</strong>
+                </article>
+
+                <article class="summary-card">
+                  <span>Total deducciones</span>
+                  <strong id="liqDeductionsTotal">NIO 0.00</strong>
+                </article>
+
+                <article class="summary-card">
+                  <span>Neto liquidacion</span>
+                  <strong id="liqNetTotal">NIO 0.00</strong>
+                </article>
+              </section>
+
+              <div class="records-layout">
+                <div class="table-shell">
+                  <table class="main-table">
+                    <thead>
+                      <tr>
+                        <th>Seccion</th>
+                        <th>Concepto</th>
+                        <th>Referencia</th>
+                        <th class="number">Dias</th>
+                        <th class="number">Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody id="liquidationLinesBody"></tbody>
+                  </table>
+                </div>
+
+                <div class="detail-pane">
+                  <div class="detail-head">
+                    <div>
+                      <h3 id="liquidationEmployeeName">Sin colaborador</h3>
+                      <p id="liquidationEmployeeMeta" class="hint-text">
+                        La ficha del retiro se mostrara aqui luego de revisar o abrir una liquidacion guardada.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="detail-grid" id="liquidationFacts"></div>
+
+                  <div class="liquidation-notes-card">
+                    <span class="eyebrow">Notas de calculo</span>
+                    <ul id="liquidationNotes"></ul>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <span class="eyebrow">Historial</span>
+                  <h2>Liquidaciones registradas</h2>
+                </div>
+              </div>
+
+              <div class="table-shell">
+                <table class="main-table">
+                  <thead>
+                    <tr>
+                      <th>Colaborador</th>
+                      <th>Causal</th>
+                      <th>Baja</th>
+                      <th class="number">Neto</th>
+                      <th>Registrada</th>
+                    </tr>
+                  </thead>
+                  <tbody id="liquidationHistoryBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+        </section>
+      </section>
+
+      <div class="modal-shell" id="payrollConfirmModal" hidden>
+        <div class="modal-backdrop"></div>
+
+        <section
+          class="modal-card"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="payrollConfirmTitle"
+        >
+          <div class="modal-head">
+            <div>
+              <span class="eyebrow">Confirmacion</span>
+              <h2 id="payrollConfirmTitle">Procesar nomina</h2>
+            </div>
+
+            <button
+              class="ghost-button modal-close-button"
+              id="closePayrollConfirmButton"
+              type="button"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <div class="modal-copy">
+            <p>
+              Vas a generar la nomina del periodo seleccionado. Revisa los datos antes de
+              confirmar.
+            </p>
+          </div>
+
+          <div class="modal-summary">
+            <div class="modal-summary-block">
+              <span class="status-pill" id="confirmPeriodStatus">Sin seleccion</span>
+              <strong id="confirmPeriodTitle">Sin periodo seleccionado</strong>
+              <p id="confirmPeriodMeta">Selecciona un periodo antes de procesar la nomina.</p>
+              <p class="hint-text" id="confirmPeriodCutoff">Sin fecha de corte configurada.</p>
+            </div>
+
+            <div class="modal-note">
+              <strong>Que pasara al confirmar</strong>
+              <p>
+                Se ejecutara el procesamiento del periodo, se tomaran solo horas extra
+                aprobadas dentro del corte y luego se cargaran los saldos y detalles
+                generados.
+              </p>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelGeneratePayrollButton" type="button">
+              No procesar
+            </button>
+            <button class="primary-button" id="confirmGeneratePayrollButton" type="button">
+              Si, procesar nomina
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div class="modal-shell" id="liquidationConfirmModal" hidden>
+        <div class="modal-backdrop"></div>
+
+        <section
+          class="modal-card"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="liquidationConfirmTitle"
+        >
+          <div class="modal-head">
+            <div>
+              <span class="eyebrow">Confirmacion</span>
+              <h2 id="liquidationConfirmTitle">Procesar liquidacion</h2>
+            </div>
+
+            <button
+              class="ghost-button modal-close-button"
+              id="closeLiquidationConfirmButton"
+              type="button"
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <div class="modal-copy">
+            <p>
+              Vas a generar la liquidacion final y a retirar al colaborador. Revisa el neto y la
+              causal antes de confirmar.
+            </p>
+          </div>
+
+          <div class="modal-summary">
+            <div class="modal-summary-block">
+              <span class="status-pill is-open" id="liquidationConfirmStatus">En revision</span>
+              <strong id="liquidationConfirmEmployee">Sin colaborador seleccionado</strong>
+              <p id="liquidationConfirmCause">Sin causal seleccionada.</p>
+              <p class="hint-text" id="liquidationConfirmNet">Neto pendiente de calculo.</p>
+            </div>
+
+            <div class="modal-note">
+              <strong>Que pasara al confirmar</strong>
+              <p>
+                Se generara la liquidacion en nomina, se cerrara el contrato vigente, el empleado
+                quedara retirado y se desactivara su acceso si tiene usuario asociado.
+              </p>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelLiquidationConfirmButton" type="button">
+              No procesar
+            </button>
+            <button class="primary-button" id="confirmGenerateLiquidationButton" type="button">
+              Si, procesar liquidacion
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div class="toast-stack" id="toastStack"></div>
+    </main>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/js/nomina/nomina.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

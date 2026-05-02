@@ -1,0 +1,190 @@
+@{
+    ViewData["Title"] = "Bandeja Supervisor";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Bandeja Supervisor</title>
+    <meta
+      name="description"
+      content="Bandeja de aprobaciones para supervisor de vacaciones y horas extra."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body class="supervisor-page">
+    <div class="page-aura page-aura-left" aria-hidden="true"></div>
+    <div class="page-aura page-aura-right" aria-hidden="true"></div>
+
+    <main class="portal-shell">
+      <header class="topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button">
+            Panel principal
+          </button>
+
+          <div class="title-block">
+            <span class="eyebrow">Aprobaciones</span>
+            <h1>Bandeja Supervisor</h1>
+          </div>
+        </div>
+
+        <div class="topbar-group topbar-group-right">
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+
+          <button class="ghost-button" id="logoutButton" type="button">
+            Cerrar sesion
+          </button>
+        </div>
+      </header>
+
+      <section class="board-card supervisor-board">
+        <header class="board-head">
+          <div class="board-copy">
+            <span class="eyebrow">Control de pendientes</span>
+            <h2 id="supervisorTitle">Pendientes del sistema</h2>
+            <p id="supervisorNote">
+              Aprueba o rechaza solicitudes de vacaciones y horas extra.
+            </p>
+          </div>
+
+          <button class="primary-button" id="refreshSupervisor" type="button">
+            Actualizar
+          </button>
+        </header>
+
+        <section class="metrics-grid">
+          <article class="metric-card">
+            <span class="metric-label">Vacaciones pendientes</span>
+            <strong class="metric-value" id="metricPendingVacations">0</strong>
+            <small class="metric-meta">Solicitudes por revisar</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Horas extra pendientes</span>
+            <strong class="metric-value" id="metricPendingOvertime">0</strong>
+            <small class="metric-meta">Horas extra registradas</small>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Pendientes visibles</span>
+            <strong class="metric-value" id="metricPendingVisible">0</strong>
+            <small class="metric-meta">Total en la bandeja actual</small>
+          </article>
+        </section>
+
+        <div class="scope-note" id="scopeNote"></div>
+
+        <nav class="tab-row" id="supervisorFilterRow" aria-label="Filtros de bandeja">
+          <button class="tab-button is-active" type="button" data-filter="TODOS">
+            Todos
+          </button>
+          <button class="tab-button" type="button" data-filter="VACACION">
+            Vacaciones
+          </button>
+          <button class="tab-button" type="button" data-filter="HORA_EXTRA">
+            Horas extra
+          </button>
+        </nav>
+
+        <section class="supervisor-grid">
+          <article class="panel-card supervisor-list-card">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Bandeja</span>
+                <h3>Solicitudes pendientes</h3>
+              </div>
+            </div>
+
+            <div class="record-list" id="pendingRecordList"></div>
+            <p class="empty-state" id="pendingRecordEmptyState" hidden>
+              No hay pendientes para mostrar.
+            </p>
+          </article>
+
+          <article class="panel-card supervisor-detail-card">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Detalle</span>
+                <h3 id="detailTitle">Sin seleccion</h3>
+              </div>
+            </div>
+
+            <div class="detail-grid" id="detailGrid">
+              <div class="detail-empty">
+                Selecciona un registro de la bandeja para aprobarlo o rechazarlo.
+              </div>
+            </div>
+
+            <form class="form-grid" id="resolutionForm" hidden novalidate>
+              <label class="field field-full" id="approvedDaysField" hidden>
+                <span>Dias a aprobar</span>
+                <div class="readonly-field" id="approvedDaysInput">0.00 dias</div>
+              </label>
+
+              <label class="field field-full">
+                <span>Comentario</span>
+                <textarea id="resolutionComment" rows="4" placeholder="Escribe una observacion para la resolucion."></textarea>
+              </label>
+
+              <div class="form-actions field-full">
+                <button class="ghost-button is-danger" id="rejectButton" type="button">
+                  Rechazar
+                </button>
+                <button class="primary-button" id="approveButton" type="button">
+                  Aprobar
+                </button>
+              </div>
+            </form>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+    <div class="modal-shell" id="resolutionFeedbackModal" hidden>
+      <div class="modal-backdrop"></div>
+      <div class="modal-card modal-card-compact" role="dialog" aria-modal="true" aria-labelledby="resolutionFeedbackTitle">
+        <div class="modal-icon-shell" id="resolutionFeedbackIcon" aria-hidden="true"></div>
+        <div class="modal-copy">
+          <span class="eyebrow" id="resolutionFeedbackKicker">Resultado</span>
+          <h3 id="resolutionFeedbackTitle">Solicitud procesada</h3>
+          <p id="resolutionFeedbackText">La solicitud fue resuelta correctamente.</p>
+        </div>
+
+        <article class="result-note-card" id="resolutionFeedbackCommentCard" hidden>
+          <span>Comentario del rechazo</span>
+          <p id="resolutionFeedbackComment"></p>
+        </article>
+
+        <p class="result-route-note" id="resolutionFeedbackRouteNote">
+          Quedan pendientes por revisar.
+        </p>
+
+        <div class="form-actions field-full">
+          <button class="primary-button" id="resolutionFeedbackContinue" type="button">
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/js/portal/supervisor.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

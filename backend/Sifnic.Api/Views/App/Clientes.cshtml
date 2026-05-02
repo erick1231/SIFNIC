@@ -1,0 +1,267 @@
+@{
+    ViewData["Title"] = "Clientes";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Clientes</title>
+    <meta name="description" content="Modulo de clientes SIFNIC." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/creditos/assets/css/creditos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-design-system.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body class="clientes-page fin-page">
+    <main class="ops-shell">
+      <header class="ops-topbar">
+        <div class="topbar-group">
+          <button class="ghost-button" id="backToDashboard" type="button" title="Volver al panel principal">Volver al panel</button>
+          <div class="title-block">
+            <span class="eyebrow">Relacion comercial</span>
+            <h1>Clientes</h1>
+            <p class="fin-page-intent">Ficha ejecutiva de cliente, riesgo, expediente, capacidad e historial financiero.</p>
+          </div>
+        </div>
+
+        <div class="topbar-group topbar-group-right">
+          <button class="ghost-button" id="themeToggle" type="button" aria-pressed="false">
+            <span id="themeToggleLabel">Modo oscuro</span>
+          </button>
+          <div class="session-chip">
+            <strong id="sessionUser">Usuario</strong>
+            <span id="sessionMeta">Sesion activa</span>
+          </div>
+          <button class="ghost-button" id="closeSession" type="button">Cerrar sesion</button>
+        </div>
+      </header>
+
+      <section class="ops-layout">
+        <aside class="ops-sidebar">
+          <div class="toolbar-card">
+            <label class="field">
+              <span>Buscar</span>
+              <input id="searchInput" type="search" placeholder="Cedula, nombre, telefono" />
+            </label>
+            <label class="field">
+              <span>Estado</span>
+              <select id="statusFilter"></select>
+            </label>
+            <label class="field">
+              <span>Tipo</span>
+              <select id="typeFilter"></select>
+            </label>
+            <div class="toolbar-actions">
+              <button class="primary-button" id="newButton" type="button">Nuevo</button>
+              <button class="ghost-button" id="refreshButton" type="button">Actualizar</button>
+            </div>
+          </div>
+
+          <section class="metric-stack">
+            <article class="metric-card">
+              <span>Clientes</span>
+              <strong id="metricClients">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Solicitudes</span>
+              <strong id="metricApplications">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Saldo cartera</span>
+              <strong id="metricBalance">0.00</strong>
+            </article>
+          </section>
+        </aside>
+
+        <section class="ops-main" id="opsMain">
+          <section class="table-panel">
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Registro maestro</span>
+                <h2>Clientes</h2>
+              </div>
+              <span class="counter-pill" id="tableCounter">0 registros</span>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Identificacion</th>
+                    <th>Cliente</th>
+                    <th>Tipo</th>
+                    <th>Riesgo</th>
+                    <th>Expediente</th>
+                    <th>Solicitudes</th>
+                    <th>Prestamos</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="detail-panel" id="detailPanel">
+            <button class="detail-toggle-button" id="detailToggleButton" type="button" aria-expanded="true" title="Ocultar ficha del cliente">
+              <span id="detailToggleIcon">&gt;</span>
+            </button>
+            <div class="panel-head">
+              <div>
+                <span class="eyebrow">Ficha</span>
+                <h2 id="detailTitle">Sin seleccion</h2>
+            </div>
+            <span class="status-pill" id="detailStatus">-</span>
+          </div>
+            <section class="decision-strip client-decision-strip" id="clientDecisionStrip">
+              <article>
+                <span>Perfil</span>
+                <strong>Selecciona un cliente para evaluar riesgo, expediente y actividad reciente.</strong>
+              </article>
+            </section>
+
+            <div class="detail-actions">
+              <button class="ghost-button" id="editButton" type="button" title="Editar datos del cliente">Editar</button>
+              <button class="primary-button" id="creditRequestButton" type="button" title="Crear solicitud de credito para este cliente">Solicitud</button>
+              <button class="danger-button" id="deleteButton" type="button" title="Solicitar eliminacion con autorizacion">Eliminar</button>
+            </div>
+
+            <nav class="detail-tabs" id="clientDetailTabs" aria-label="Secciones de ficha">
+              <button class="is-active" type="button" data-client-tab="resumen">Resumen</button>
+              <button type="button" data-client-tab="solicitudes">Solicitudes</button>
+              <button type="button" data-client-tab="prestamos">Prestamos</button>
+              <button type="button" data-client-tab="historial">Historial</button>
+            </nav>
+
+            <div class="detail-grid" id="detailBody"></div>
+            <div class="related-panel" id="relatedBody"></div>
+          </aside>
+        </section>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="modalBackdrop" hidden>
+      <section class="modal-shell modal-wide" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <header class="modal-head">
+          <div>
+            <span class="eyebrow" id="modalKicker">Cliente</span>
+            <h2 id="modalTitle">Nuevo cliente</h2>
+          </div>
+          <button class="ghost-button" id="modalClose" type="button">Cerrar</button>
+        </header>
+
+        <form class="ops-form" id="clientForm">
+          <input type="hidden" id="clientId" />
+
+          <section class="form-section">
+            <h3>Datos personales</h3>
+            <div class="form-grid">
+              <label class="field"><span>Tipo identificacion</span><select id="identificationType" name="identificationType"></select></label>
+              <label class="field"><span>Numero</span><input id="cedula" name="cedula" maxlength="50" /></label>
+              <label class="field"><span>Sucursal</span><select id="branch" name="branch"></select></label>
+              <label class="field"><span>Tipo cliente</span><select id="clientType" name="clientType"></select></label>
+              <label class="field"><span>Nombres</span><input id="names" name="names" maxlength="150" /></label>
+              <label class="field"><span>Apellidos</span><input id="lastNames" name="lastNames" maxlength="150" /></label>
+              <label class="field"><span>Relacion</span><select id="relationship" name="relationship"></select></label>
+              <label class="field"><span>Estado</span><select id="status" name="status"></select></label>
+              <label class="field"><span>Fecha ingreso</span><input id="entryDate" name="entryDate" type="date" readonly title="Se asigna automaticamente con la fecha del dia." /></label>
+              <label class="field"><span>Fecha nacimiento</span><input id="birthDate" name="birthDate" type="date" /></label>
+              <label class="field"><span>Genero</span><select id="gender" name="gender"></select></label>
+              <label class="field"><span>Estado civil</span><select id="civilStatus" name="civilStatus"></select></label>
+              <label class="field field-wide"><span>Conyuge</span><input id="spouseName" name="spouseName" maxlength="200" /></label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Direccion y contacto</h3>
+            <div class="form-grid">
+              <label class="field"><span>Telefono</span><input id="phone" name="phone" maxlength="50" /></label>
+              <label class="field"><span>Celular</span><input id="mobile" name="mobile" maxlength="50" /></label>
+              <label class="field"><span>Telefono alterno</span><input id="secondaryPhone" name="secondaryPhone" maxlength="50" /></label>
+              <label class="field"><span>Correo</span><input id="email" name="email" type="email" maxlength="150" /></label>
+              <label class="field field-wide"><span>Direccion casa</span><input id="address" name="address" maxlength="300" /></label>
+              <label class="field field-wide"><span>Geografia casa</span><input id="homeGeography" name="homeGeography" maxlength="200" /></label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Actividad economica</h3>
+            <div class="form-grid">
+              <label class="field"><span>Ocupacion</span><input id="occupation" name="occupation" maxlength="150" /></label>
+              <label class="field"><span>Actividad</span><input id="economicActivity" name="economicActivity" maxlength="200" /></label>
+              <label class="field"><span>Negocio</span><input id="businessName" name="businessName" maxlength="200" /></label>
+              <label class="field"><span>Antiguedad meses</span><input id="businessAgeMonths" name="businessAgeMonths" type="number" min="0" step="1" /></label>
+              <label class="field field-wide"><span>Direccion negocio</span><input id="businessAddress" name="businessAddress" maxlength="300" /></label>
+              <label class="field field-wide"><span>Geografia negocio</span><input id="businessGeography" name="businessGeography" maxlength="200" /></label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h3>Ingresos, egresos y riesgo</h3>
+            <div class="form-grid">
+              <label class="field"><span>Ingreso mensual</span><input id="monthlyIncome" name="monthlyIncome" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Ingreso conyuge</span><input id="spouseIncome" name="spouseIncome" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Remesas</span><input id="remittances" name="remittances" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Alquileres</span><input id="rentIncome" name="rentIncome" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Otros ingresos</span><input id="otherIncome" name="otherIncome" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Egresos</span><input id="monthlyExpenses" name="monthlyExpenses" type="number" min="0" step="0.01" /></label>
+              <label class="field"><span>Nivel riesgo</span><select id="riskLevel" name="riskLevel" disabled title="Calculado automaticamente por factores de debida diligencia, capacidad y expediente."></select></label>
+              <label class="field"><span>Puntaje</span><input id="riskScore" name="riskScore" type="number" min="0" max="100" step="1" readonly title="Puntaje calculado automaticamente; no se digita manualmente." /></label>
+              <label class="field"><span>Expediente</span><select id="fileStatus" name="fileStatus"></select></label>
+              <label class="check-field" title="PEP: Persona Expuesta Politicamente. Requiere mayor debida diligencia y monitoreo."><input id="isPep" name="isPep" type="checkbox" /><span>PEP</span></label>
+              <label class="field field-wide"><span>Origen fondos</span><input id="sourceOfFunds" name="sourceOfFunds" maxlength="250" /></label>
+              <label class="field field-wide"><span>Proposito relacion</span><input id="relationshipPurpose" name="relationshipPurpose" maxlength="250" /></label>
+              <label class="field field-wide"><span>Observaciones</span><textarea id="notes" name="notes" rows="3" maxlength="1000"></textarea></label>
+            </div>
+          </section>
+
+          <div class="form-message" id="formMessage" hidden></div>
+          <footer class="modal-actions">
+            <button class="ghost-button" id="backFormButton" type="button">Volver</button>
+            <button class="ghost-button" id="cancelFormButton" type="button">Cancelar</button>
+            <button class="primary-button" type="submit">Guardar</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="deleteBackdrop" hidden>
+      <section class="modal-shell" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+        <header class="modal-head">
+          <div>
+            <span class="eyebrow">Autorizacion</span>
+            <h2 id="deleteTitle">Eliminar cliente con autorizacion</h2>
+          </div>
+          <button class="ghost-button" id="deleteClose" type="button">Cerrar</button>
+        </header>
+
+        <form class="ops-form" id="deleteForm">
+          <label class="field field-wide"><span>Motivo</span><textarea id="deleteReason" rows="4" minlength="12" required placeholder="Detalle breve para auditoria"></textarea></label>
+          <div class="form-grid">
+            <label class="field"><span>Usuario administrador</span><input id="adminUser" autocomplete="username" required /></label>
+            <label class="field"><span>Clave administrador</span><input id="adminPassword" type="password" autocomplete="current-password" required /></label>
+          </div>
+          <div class="form-message" id="deleteMessage" hidden></div>
+          <footer class="modal-actions">
+            <button class="ghost-button" id="deleteBack" type="button">Volver</button>
+            <button class="ghost-button" id="deleteCancel" type="button">Cancelar</button>
+            <button class="danger-button" id="deleteSubmitButton" type="submit">Procesar</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/js/shared/unsaved-guard.js" asp-append-version="true"></script>
+    <script src="~/modules/creditos/clientes.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>

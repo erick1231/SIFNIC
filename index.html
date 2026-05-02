@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="refresh" content="0; url=http://localhost:5277/App/Login" />
+    <title>SIFNIC | Abriendo sistema</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(31, 208, 188, 0.16), transparent 26%),
+          linear-gradient(180deg, #07131d 0%, #0b1a27 100%);
+        color: #f4f3ec;
+      }
+
+      .launcher {
+        width: min(460px, 100%);
+        padding: 28px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(8, 21, 31, 0.9);
+        text-align: center;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 1.8rem;
+      }
+
+      p {
+        margin: 0;
+        color: rgba(244, 243, 236, 0.72);
+        line-height: 1.6;
+      }
+
+      a {
+        display: inline-flex;
+        margin-top: 18px;
+        min-height: 44px;
+        padding: 0 18px;
+        border-radius: 14px;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #18c7b8 0%, #f4be63 100%);
+        color: #041018;
+        font-weight: 700;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="launcher">
+      <h1>Abriendo SIFNIC</h1>
+      <p>Redirigiendo al sistema .NET en <strong>http://localhost:5277/App/Login</strong>.</p>
+      <a href="http://localhost:5277/App/Login">Abrir login</a>
+    </main>
+    <script>
+      window.location.replace("http://localhost:5277/App/Login");
+    </script>
+  </body>
+</html>

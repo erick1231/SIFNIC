@@ -1,0 +1,57 @@
+# Build output
+bin/
+obj/
+artifacts/
+build/
+.gradle/
+tmp-build-*/
+tmp-report-check/
+.chrome-headless/
+.dotnet-home/
+backend/_tmp/
+backend/_buildcheck*/
+backend/build-temp-*/
+SifnicMobile/.tools/
+SifnicMobile/local.properties
+SERVICREDITO/
+
+# Local runtime and diagnostics
+*.log
+*.err.log
+*.out.log
+*.pid
+
+# Local databases, backups, and environment-specific files
+*.bak
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+*.bacpac
+*.rar
+*.7z
+*.apk
+*.aab
+*.dex
+appsettings.Development.json
+_tmp_*.sql
+data/backup/
+
+# Runtime uploads and QA files that may contain personal/client data
+backend/Sifnic.Api/wwwroot/uploads/
+backend/Sifnic.Api/wwwroot/qa-*.png
+
+# Local UI validation screenshots and temporary artifacts
+tmp-*.png
+tmp-*.jpg
+tmp-*.jpeg
+tmp-*.webp
+
+# IDE / OS noise
+.vs/
+.vscode/
+*.user
+*.suo
+Thumbs.db
+desktop.ini

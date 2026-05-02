@@ -1,0 +1,245 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFNIC | Panel Principal</title>
+    <meta name="description" content="Panel principal del Sistema de Informacion Financiera Nicaragua." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="~/js/shared/theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/ux-guidance.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/finance-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/enterprise-system.css" asp-append-version="true" />
+  </head>
+  <body class="dashboard-v2">
+    <main class="finance-dashboard-shell">
+      <aside class="dash-sidebar" id="dashboardSidebar">
+        <a class="dash-brand" href="/App/Dashboard" aria-label="Panel principal SIFNIC">
+          <span class="dash-brand-mark" aria-hidden="true"></span>
+          <span>
+            <strong>SIFNIC</strong>
+            <small>Sistema Integral</small>
+          </span>
+        </a>
+
+        <nav class="dash-nav" aria-label="Navegacion principal">
+          <a class="dash-nav-link is-active" href="/App/Dashboard" data-module-nav="dashboard"><span data-icon="home"></span>Inicio</a>
+
+          <p>Operacion</p>
+          <a class="dash-nav-link" href="/App/Clientes" data-module-nav="clientes"><span data-icon="users"></span>Clientes</a>
+          <a class="dash-nav-link" href="/App/SolicitudesCredito" data-module-nav="creditos"><span data-icon="file"></span>Solicitudes de credito</a>
+          <a class="dash-nav-link" href="/App/Cartera" data-module-nav="cobranza"><span data-icon="pie"></span>Cartera y cobranza</a>
+          <a class="dash-nav-link" href="/App/Caja" data-module-nav="caja"><span data-icon="cash"></span>Caja</a>
+
+          <p>Finanzas</p>
+          <a class="dash-nav-link" href="#" data-module-nav="bancos"><span data-icon="bank"></span>Bancos</a>
+          <a class="dash-nav-link" href="#" data-module-nav="cxc"><span data-icon="invoice"></span>Cuentas por cobrar</a>
+          <a class="dash-nav-link" href="#" data-module-nav="cxp"><span data-icon="pay"></span>Cuentas por pagar</a>
+          <a class="dash-nav-link" href="/App/Contabilidad" data-module-nav="contabilidad"><span data-icon="ledger"></span>Contabilidad</a>
+
+          <p>Control y cumplimiento</p>
+          <a class="dash-nav-link" href="#" data-module-nav="cumplimiento"><span data-icon="shield"></span>Cumplimiento</a>
+          <a class="dash-nav-link" href="#" data-module-nav="regulatorio"><span data-icon="check"></span>Regulatorio</a>
+          <a class="dash-nav-link" href="/App/BandejaSupervisor" data-module-nav="bandeja-supervisor"><span data-icon="tray"></span>Bandeja supervisor</a>
+          <a class="dash-nav-link" href="/App/Configuracion" data-module-nav="configuracion"><span data-icon="gear"></span>Configuracion</a>
+
+          <p>Gestion interna</p>
+          <a class="dash-nav-link" href="/App/Rrhh" data-module-nav="rrhh"><span data-icon="people"></span>Recursos humanos</a>
+          <a class="dash-nav-link" href="/App/Nomina" data-module-nav="nomina"><span data-icon="coin"></span>Nomina</a>
+          <a class="dash-nav-link" href="/App/MiPortal" data-module-nav="mi-portal"><span data-icon="user"></span>Mi portal</a>
+        </nav>
+
+        <button class="dash-collapse" id="collapseSidebarButton" type="button">Contraer menu</button>
+      </aside>
+
+      <section class="dash-workspace">
+        <header class="dash-topbar">
+          <div class="dash-title-row">
+            <button class="dash-menu-button" id="mobileMenuButton" type="button" aria-label="Abrir menu"></button>
+            <div>
+              <h1>Panel principal</h1>
+              <p>Accede a tus modulos, pendientes y herramientas de trabajo.</p>
+            </div>
+          </div>
+
+          <div class="dash-context">
+            <article>
+              <span>Fecha operativa</span>
+              <strong id="operationalDate">01/05/2026</strong>
+            </article>
+            <article>
+              <span>Sucursal</span>
+              <strong id="operationalBranch">Casa Matriz</strong>
+            </article>
+            <article>
+              <span>Ambiente</span>
+              <strong><i></i>Produccion</strong>
+            </article>
+
+            <div class="notification-shell" id="approvalNotificationShell" hidden>
+              <button
+                class="notification-button"
+                id="approvalNotificationButton"
+                type="button"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="approvalNotificationPopover"
+                title="Pendientes por aprobar"
+              >
+                <span class="notification-icon" aria-hidden="true"></span>
+                <span class="notification-badge" id="approvalNotificationBadge" hidden>0</span>
+              </button>
+
+              <div class="notification-popover" id="approvalNotificationPopover" hidden>
+                <div class="notification-popover-head">
+                  <strong>Pendientes de aprobacion</strong>
+                  <span class="notification-total" id="approvalNotificationTotal">0 pendientes</span>
+                </div>
+                <div class="notification-summary" id="approvalNotificationSummary"></div>
+                <div class="notification-items" id="approvalNotificationItems"></div>
+                <p class="notification-note" id="approvalNotificationNote"></p>
+                <a class="notification-link" id="approvalNotificationLink" href="/App/BandejaSupervisor">Abrir bandeja</a>
+              </div>
+            </div>
+
+            <button class="theme-toggle compact-theme-toggle" id="themeToggle" type="button" aria-pressed="false">
+              <span id="themeToggleLabel">Modo oscuro</span>
+              <small id="themeToggleHint">Cambiar a claro</small>
+            </button>
+
+            <div class="dash-user-pill">
+              <span class="dash-avatar" aria-hidden="true"></span>
+              <div>
+                <strong id="sessionUser">Usuario</strong>
+                <span id="sessionMeta">Cargando sesion...</span>
+              </div>
+            </div>
+
+            <button class="logout-button" id="logoutButton" type="button">Cerrar sesion</button>
+          </div>
+        </header>
+
+        <section class="dash-content">
+          <div class="dash-welcome-row">
+            <div>
+              <h2 id="welcomeTitle">Bienvenido</h2>
+              <p>Aqui tienes lo mas importante del dia.</p>
+            </div>
+            <label class="dash-search">
+              <span aria-hidden="true"></span>
+              <input id="dashboardSearch" type="search" placeholder="Buscar modulo, proceso o reporte..." />
+              <kbd>Ctrl + K</kbd>
+            </label>
+            <button class="dash-secondary-button" type="button">Personalizar</button>
+          </div>
+
+          <section class="enterprise-next-action dash-next-action" aria-label="Operacion prioritaria">
+            <div>
+              <span class="eyebrow">Operacion del dia</span>
+              <strong>Atiende pendientes criticos antes de navegar modulos</strong>
+              <p>Solicitudes, arqueos, documentos y alertas quedan arriba como cola de trabajo real.</p>
+            </div>
+            <a class="primary-button" href="/App/BandejaSupervisor">Abrir bandeja</a>
+          </section>
+
+          <section class="dash-operation-section" aria-label="Operacion del dia">
+            <div class="dash-zone-head">
+              <div>
+                <span class="eyebrow">Zona 1</span>
+                <h2>Operacion del dia</h2>
+              </div>
+              <p>Primero lo urgente y accionable; despues la exploracion de modulos.</p>
+            </div>
+
+          <section class="dash-insight-grid">
+            <article class="dash-insight-card frequent">
+              <div class="dash-card-head">
+                <span class="dash-card-icon" data-icon="star"></span>
+                <strong>Accesos frecuentes</strong>
+              </div>
+              <div class="quick-access-grid" id="quickAccessGrid"></div>
+            </article>
+
+            <article class="dash-insight-card pending">
+              <div class="dash-card-head">
+                <span class="dash-card-icon" data-icon="clock"></span>
+                <strong>Pendientes</strong>
+                <em id="pendingTotal">27</em>
+              </div>
+              <div class="dash-list">
+                <span><b>12</b> Solicitudes por aprobar</span>
+                <span><b>5</b> Arqueos pendientes</span>
+                <span><b>3</b> Documentos por validar</span>
+                <span><b>7</b> Transacciones por revisar</span>
+              </div>
+              <a href="/App/BandejaSupervisor">Ver todos</a>
+            </article>
+
+            <article class="dash-insight-card alerts">
+              <div class="dash-card-head">
+                <span class="dash-card-icon" data-icon="alert"></span>
+                <strong>Alertas</strong>
+                <em>5</em>
+              </div>
+              <div class="dash-list">
+                <span><b>2</b> Creditos vencidos criticos</span>
+                <span><b>1</b> Limite de caja excedido</span>
+                <span><b>2</b> Cumplimientos regulatorios</span>
+              </div>
+              <a href="/App/Cartera">Ver todas</a>
+            </article>
+
+            <article class="dash-insight-card recent">
+              <div class="dash-card-head">
+                <span class="dash-card-icon" data-icon="history"></span>
+                <strong>Accesos recientes</strong>
+              </div>
+              <div class="dash-list recent-list">
+                <a href="/App/BandejaSupervisor"><span>Bandeja supervisor</span><em>Hace 15 min</em></a>
+                <a href="/App/Contabilidad"><span>Reportes gerenciales</span><em>Hace 1 h</em></a>
+                <a href="/App/Caja"><span>Arqueos de caja</span><em>Hace 3 h</em></a>
+              </div>
+              <a href="/App/Dashboard">Ver historial</a>
+            </article>
+          </section>
+          </section>
+
+          <section class="dash-modules-section" aria-label="Catalogo de modulos">
+            <div class="dash-section-head">
+              <div>
+                <span class="eyebrow">Zona 2</span>
+                <h2>Modulos del sistema</h2>
+                <p>Explora y accede a los modulos disponibles segun tu perfil.</p>
+              </div>
+              <div class="dash-module-tools">
+                <span class="panel-summary-pill" id="menuModuleCount">0 modulos habilitados</span>
+                <select id="categoryFilter" aria-label="Filtrar categoria">
+                  <option value="TODOS">Todas las categorias</option>
+                  <option value="Operacion comercial">Operacion comercial</option>
+                  <option value="Operacion financiera">Operacion financiera</option>
+                  <option value="Control y cumplimiento">Control y cumplimiento</option>
+                  <option value="Gestion interna y soporte">Gestion interna y soporte</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="menu-grid" id="menuGrid"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="~/js/shared/auth-session.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard/dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/shared/ux-guidance.js" asp-append-version="true"></script>
+  </body>
+</html>
